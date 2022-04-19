@@ -11,7 +11,7 @@
     </head>
     <body>
         <!-- NAV-BAR -->
-        <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+        <nav class="navbar navbar-expand-sm sticky-top bg-dark navbar-dark">
           <div class="container-fluid">
             <a class="navbar-brand" href="#">Carsharing</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
@@ -23,12 +23,12 @@
                   <a class="nav-link" href="#">Home</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="#">Find Partners</a>
+                  <a class="nav-link" href="#">Auto finden</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="#">Profile</a>
+                  <a class="nav-link" href="{{ url_for("profile") }}">Profil</a>
                 </li>
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Login</button>
+                  <a href="{{ url_for("login") }}"><button class="btn btn-outline-secondary my-2 my-sm-0" type="submit">Login</button></a>
               </ul>
             </div>
           </div>
