@@ -20,10 +20,7 @@
                 <div class="collapse navbar-collapse" id="collapsibleNavbar">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Auto finden</a>
+                            <a class="nav-link" href="{{ url_for("findCar") }}">Auto finden</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for("profile") }}">Profil</a>
@@ -48,7 +45,7 @@
                             <input type="password" class="form-control mb-4 mt-2" id="password" name="password">
                         </div>
                         <button type="submit" class="btn btn-primary mb-4">Login</button>
-                        <p><a href="{{ url_for("register") }}">not registered yet? go to register</a></p>
+                        <p><a href="{{ url_for("register") }}">Account erstellen</a></p>
                     </form>
                 </div>
             </div>
