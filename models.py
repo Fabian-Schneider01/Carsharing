@@ -3,6 +3,26 @@ import sqlite3
 con = sqlite3.connect('database.sqlite')
 
 cur = con.cursor()
+"""
+cur.execute('''
+    CREATE TABLE Adresse(
+    AdressID INTEGER NOT NULL PRIMARY KEY, 
+    Straße TEXT, 
+    Hausnummer INT, 
+    Ort TEXT, 
+    Postleitzahl TEXT
+    )
+''')
+"""
+cur.execute('''
+    INSERT INTO Adresse VALUES(123, "Testweg", 456, "Testort", 789)
+''')
+
+cur.execute('''
+    SELECT * FROM Adresse
+''')
+
+print(cur.fetchall())
 
 cur.execute('''
     CREATE TABLE User(
@@ -13,17 +33,8 @@ cur.execute('''
     Email TEXT, 
     Passwort TEXT, 
     Guthaben INT, 
+    Adresse INT,
     FOREIGN KEY(Adresse) REFERENCES Adresse(AdressID)
-    )
-''')
-
-cur.execute('''
-    CREATE TABLE Adresse(
-    AdressID INTEGER NOT NULL PRIMARY KEY, 
-    Straße TEXT, 
-    Hausnummer INT, 
-    Ort TEXT, 
-    Postleitzahl TEXT
     )
 ''')
 
@@ -36,11 +47,14 @@ cur.execute('''
     PreisProTag INT,
     Startdatum DATE,
     Enddatum DATE
-    );
+    )
 ''')
 
 cur.execute('''
     CREATE TABLE Mietauftrag(
+    Mieter INT,
+    Vermieter INT,
+    Auto INT,
     FOREIGN KEY(Mieter) REFERENCES User(UserID),
     FOREIGN KEY(Vermieter) REFERENCES User(UserID),
     FOREIGN KEY(Auto) REFERENCES Autos(AutoID),
@@ -53,7 +67,12 @@ cur.execute('''
 
 cur.execute('''
     CREATE TABLE Mietauftrag(
+    User INT,
+    Auto INT,
     FOREIGN KEY(User) REFERENCES User(UserID),
     FOREIGN KEY(Auto) REFERENCES Autos(AutoID)
     )
 ''')
+
+
+cur.close()
