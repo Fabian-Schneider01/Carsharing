@@ -14,15 +14,6 @@ cur.execute('''
     )
 ''')
 """
-cur.execute('''
-    INSERT INTO Adresse VALUES(123, "Testweg", 456, "Testort", 789)
-''')
-
-cur.execute('''
-    SELECT * FROM Adresse
-''')
-
-print(cur.fetchall())
 
 cur.execute('''
     CREATE TABLE User(
@@ -55,18 +46,18 @@ cur.execute('''
     Mieter INT,
     Vermieter INT,
     Auto INT,
-    FOREIGN KEY(Mieter) REFERENCES User(UserID),
-    FOREIGN KEY(Vermieter) REFERENCES User(UserID),
-    FOREIGN KEY(Auto) REFERENCES Autos(AutoID),
+    Gesamtpreis INT,
     Startdatum DATE,
     Enddatum DATE,
-    Überweisungsdatum DATE,
-    Gesamtpreis INT
+    Ueberweisungsdatum DATE,
+    FOREIGN KEY(Mieter) REFERENCES User(UserID),
+    FOREIGN KEY(Vermieter) REFERENCES User(UserID),
+    FOREIGN KEY(Auto) REFERENCES Autos(AutoID)
     )
 ''')
 
 cur.execute('''
-    CREATE TABLE Mietauftrag(
+    CREATE TABLE Autobesitzer(
     User INT,
     Auto INT,
     FOREIGN KEY(User) REFERENCES User(UserID),
@@ -74,5 +65,14 @@ cur.execute('''
     )
 ''')
 
+cur.execute('''
+    INSERT INTO Adresse VALUES(123, "Testweg", 456, "Testort", 789)
+''')
+
+cur.execute('''
+    SELECT * FROM Adresse
+''')
+
+print(cur.fetchall())
 
 cur.close()
