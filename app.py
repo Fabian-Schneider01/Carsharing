@@ -3,7 +3,11 @@ import sqlite3
 from models import createTabels
 
 app = Flask(__name__)
+app.secret_key = "4khJ7Ggljy"
 
+with app.app_context():
+    createTabels()
+    
 @app.route('/')
 def home():
     return render_template("index.html")
@@ -41,5 +45,4 @@ def findCar():
     return render_template('findCar.html')
 
 if __name__ == '__main__':
-    createTabels()
     app.run()
