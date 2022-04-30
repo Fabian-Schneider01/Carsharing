@@ -4,6 +4,8 @@ from models import createTabels
 
 app = Flask(__name__)
 
+current_user_id = None
+
 @app.route('/')
 def home():
     return render_template("index.html")
@@ -32,9 +34,41 @@ def login():
 def register():
     return render_template("register.html")
 
-@app.route('/profile')
+@app.route('/profile', methods = ['GET', 'POST'])
 def profile():
-    return render_template('profile.html')
+    car_added = None
+    if request.method == 'POST':
+        modell = request.form['modell']
+        print(modell)
+        fahrzeugtyp = request.form['fahrzeugtyp']
+        print(fahrzeugtyp)
+        hersteller = request.form['hersteller']
+        print(hersteller)
+        preis = request.form['preis']
+        print(preis)
+        startdate = request.form['startdate']
+        print(startdate)
+        enddate = request.form['enddate']
+        print(enddate)
+        car_id = 456
+        global current_user_id
+        current_user_id = 1 # for testing purposes
+        with sqlite3.connect("database.sqlite") as con:
+            cur = con.cursor()
+            cur.execute("INSERT INTO Autos VALUES((?), (?), (?), (?), (?), (?), (?))", [(car_id), (hersteller), (modell), (fahrzeugtyp), (preis), (startdate), (enddate)])
+            cur.execute("INSERT INTO Autobesitzer VALUES((?), (?))", [current_user_id, car_id])
+            #input = cur.fetchall()
+            #print(input)
+        #    if len(input) > 0:
+        #        print('login Success')
+        #        user_found = 1
+        #        return redirect(url_for('profile'))
+        #    else: 
+        #        print("error: user not found")
+        #        user_found = 0
+        
+        car_added = 1
+    return render_template('profile.html', car_added = car_added)
 
 @app.route('/findCar')
 def findCar():

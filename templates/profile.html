@@ -248,48 +248,56 @@
                         <h4 class="modal-title">Auto hinzufügen</h4>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
-                        <!-- Modal body -->
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <label for="name">Modell</label>
-                                <input type="text" class="form-control mb-4 mt-2" id="name" name="name">
-                            </div>
-                            <div class="form-group">
-                                <label >Hersteller</label>
-                                <input class="form-control mb-4 mt-2" id="email" name="email">
-                            </div>
-                            <form class="form-group">
-                                <label for="">Preis (pro Tag in Euro)</label>
-                                <div class="input-group mt-2">
-                                    <span class="input-group-btn">
-                                        <button id="add-credit">
-                                            <svg data-type="minus" type="button" data-field="quant[1]" style="margin-right: 5px; margin-top: 3px;" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#0d6efd" class="btn-price bi bi-dash-circle-fill ml-5" viewBox="0 0 16 16">
-                                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7z"/>
-                                            </svg>
-                                        </button>
-                                    </span>
-                                    <input style="border-radius: 5px;"type="text" name="quant[2]" class="form-control input-number" value="0" min="1" max="1000">
-                                    <span class="input-group-btn">
-                                        <button id="add-credit">
-                                            <svg data-type="plus" data-field="quant[2]" xmlns="http://www.w3.org/2000/svg" style="margin-left: 5px; margin-top: 3px;" type="button" width="25" height="25" fill="#0d6efd" class="btn-price bi bi-plus-circle-fill mr-5" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
-                                            </svg>
-                                        </button>
-                                    </span>
+                        <form action=""  method="POST">
+                            <!-- Modal body -->
+                            <div class="modal-body">                
+                                <div class="form-group">
+                                    <label for="modell">Modell</label>
+                                    <input type="modell" class="form-control mb-4 mt-2" id="modell_id" name="modell">
                                 </div>
-                            </form>
-                            <div class="form-group mt-2">
-                                <label for="period" class="mt-2 mb-2">Verfügbarer Zeitraum</label>
-                                <form action="/action_page.php">
-                                    <input type="date" id="date" name="date">
-                                    <label for="date">bis</label>
-                                    <input type="date" id="date" name="date" class="mb-2">
-                                </form>
+                                <div class="form-group">
+                                    <label for="fahrzeugtyp">Fahrzeugtyp</label>
+                                    <input type="fahrzeugtyp" class="form-control mb-4 mt-2" id="fahrzeugtyp_id" name="fahrzeugtyp">
+                                </div>
+                                <div class="form-group">
+                                    <label for="hersteller">Hersteller</label>
+                                    <input type="hersteller" class="form-control mb-4 mt-2" id="hersteller_id" name="hersteller">
+                                </div>
+                                <div class="form-group">
+                                    <label for="preis">Preis (pro Tag in Euro)</label>
+                                    <div class="input-group mt-2">
+                                        <span class="input-group-btn">
+                                            <button id="subtract-credit">
+                                                <svg data-type="minus" type="button" data-field="preis" style="margin-right: 5px; margin-top: 3px;" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#0d6efd" class="btn-price bi bi-dash-circle-fill ml-5" viewBox="0 0 16 16">
+                                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7z"/>
+                                                </svg>
+                                            </button>
+                                        </span>
+                                        <input style="border-radius: 5px;"type="preis" name="preis" class="form-control input-number" id="preis_id" value="0" min="1" max="1000">
+                                        <span class="input-group-btn">
+                                            <button id="add-credit">
+                                                <svg data-type="plus" type="button" data-field="preis" style="margin-left: 5px; margin-top: 3px;" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#0d6efd" class="btn-price bi bi-plus-circle-fill mr-5" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
+                                                </svg>
+                                            </button>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="form-group mt-2">
+                                    <label for="period" class="mt-2 mb-2">Verfügbarer Zeitraum</label>
+                                    <!--<form action="/action_page.php">-->
+                                    <div>
+                                        <input type="date" id="startdate_id" name="startdate">
+                                        <label for="date">bis</label>
+                                        <input type="date" id="enddate_id" name="enddate" class="mb-2">
+                                    </div><!--</form>-->
+                                </div>
+                            
                             </div>
-                        </div>
-                        <!-- Modal footer -->
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Hinzufügen</button>
-                        </div>
+                            <!-- Modal footer -->
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Hinzufügen</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
