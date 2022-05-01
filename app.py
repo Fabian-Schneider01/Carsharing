@@ -86,12 +86,21 @@ def register():
 
     return render_template("register.html", emptyField = emptyField, emailExists = emailExists, usernameExists = usernameExists, pwNotMatching = pwNotMatching)
 
-@app.route("/profile", methods = ["POST", "GET"])
+@app.route("/profile", methods = ["GET", "POST"])
 def profile():
     email = None
-    if request.method == 'GET':
-        if session.get("UserID") is None:
-            return redirect(url_for("login"))
+    username = None
+    firstName = None
+    lastName = None
+    addressID = None
+    street = None
+    houseNum = None
+    city = None
+    postalCode = None
+    credit = None
+    if session.get("UserID") is None:
+        return redirect(url_for("login"))
+    else:
         with sqlite3.connect("database.sqlite") as con:
             cur = con.cursor()
             userID = session["UserID"]
@@ -120,11 +129,12 @@ def profile():
         print(startdate)
         enddate = request.form['enddate']
         print(enddate)
-        car_id = 456
         current_user_id = session['UserID']
         with sqlite3.connect("database.sqlite") as con:
             cur = con.cursor()
-            cur.execute("INSERT INTO Autos VALUES((?), (?), (?), (?), (?), (?), (?))", [(car_id), (hersteller), (modell), (fahrzeugtyp), (preis), (startdate), (enddate)])
+            cur.execute("INSERT INTO Autos(Hersteller, Modell, Fahrzeugtyp, PreisProTag, Startdatum, Enddatum) VALUES((?), (?), (?), (?), (?), (?))", [(hersteller), (modell), (fahrzeugtyp), (preis), (startdate), (enddate)])
+            car_id = cur.execute("SELECT AutoID FROM Autos WHERE AutoID=(SELECT max(AutoID) FROM Autos)").fetchone()[0]
+            print(car_id)
             cur.execute("INSERT INTO Autobesitzer VALUES((?), (?))", [current_user_id, car_id])
             #input = cur.fetchall()
             #print(input)
@@ -136,9 +146,8 @@ def profile():
         #        print("error: user not found")
         #        user_found = 0
         
-        car_added = 1
         
-    return render_template("profile.html", car_added = car_added, email = email, username = username, firstName = firstName, lastName = lastName, street = street, houseNum = houseNum, city = city, postalCode = postalCode, credit = credit)
+    return render_template("profile.html", email = email, username = username, firstName = firstName, lastName = lastName, street = street, houseNum = houseNum, city = city, postalCode = postalCode, credit = credit)
 
 
 @app.route("/findCar")

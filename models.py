@@ -33,7 +33,7 @@ def createTabels():
 
     cur.execute('''
         CREATE TABLE IF NOT EXISTS Autos(
-        AutoID INT INTEGER NOT NULL PRIMARY KEY, 
+        AutoID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
         Hersteller TEXT, 
         Modell TEXT, 
         Fahrzeugtyp TEXT,
@@ -67,7 +67,7 @@ def createTabels():
         )
     ''')
 
-    #cur.execute('''DELETE FROM User WHERE UserID=3''')
-    #cur.execute('''DELETE FROM Adresse WHERE AdressID=3''')
+    #cur.execute('''DROP TABLE Autos''')
+    #cur.execute('''DELETE FROM Autos WHERE AutoID=456''')
     con.commit()
     cur.close()
