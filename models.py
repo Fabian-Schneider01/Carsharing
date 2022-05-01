@@ -1,13 +1,14 @@
 import sqlite3
 
 def createTabels():
+    
     con = sqlite3.connect('database.sqlite')
 
     cur = con.cursor()
 
     cur.execute('''
         CREATE TABLE IF NOT EXISTS Adresse(
-        AdressID INTEGER NOT NULL PRIMARY KEY, 
+        AdressID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
         Straße TEXT, 
         Hausnummer INT, 
         Ort TEXT, 
@@ -18,7 +19,7 @@ def createTabels():
 
     cur.execute('''
         CREATE TABLE IF NOT EXISTS User(
-        UserID INTEGER NOT NULL PRIMARY KEY,
+        UserID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
         Benutzername TEXT, 
         Vorname TEXT, 
         Nachname TEXT, 
@@ -66,38 +67,7 @@ def createTabels():
         )
     ''')
 
-    cur.execute('''
-        INSERT or IGNORE INTO Adresse VALUES(123, "Testweg", 456, "Testort", 789)
-    ''')
-
-    cur.execute('''
-        INSERT or IGNORE INTO Autos VALUES(123, "Mercedes", "EQS", "Kombi", 50, "2022-04-24", "2022-04-27")
-    ''')
-
-    cur.execute('''
-        INSERT or IGNORE INTO User VALUES(01, "maxmu", "Max", "Mustermann", "max@mustermann.de", "maxi", 200, 123)
-    ''')
-
-    cur.execute('''
-        INSERT or IGNORE INTO User VALUES(02, "maxmu", "Max", "Mustermann", "maxi@mustermann.de", "maxi", 200, 123)
-    ''')
-
-    cur.execute('''
-        SELECT * FROM User
-    ''')
-    print(cur.fetchall())
-
-    cur.execute('''
-        SELECT * FROM Adresse
-    ''')
-
-    print(cur.fetchall())
-
-    cur.execute('''
-        SELECT * FROM Autos
-    ''')
-
-    print(cur.fetchall())
-
+    #cur.execute('''DELETE FROM User WHERE UserID=3''')
+    #cur.execute('''DELETE FROM Adresse WHERE AdressID=3''')
     con.commit()
     cur.close()

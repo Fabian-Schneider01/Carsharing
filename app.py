@@ -7,42 +7,110 @@ app.secret_key = "4khJ7Ggljy"
 
 with app.app_context():
     createTabels()
-    
-@app.route('/')
+
+@app.route("/")
 def home():
     return render_template("index.html")
 
-@app.route('/login', methods = ['GET', 'POST'])
+@app.route("/login", methods = ["GET", "POST"])
 def login():
-    user_found = None
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
+    userFound = None
+    if request.method == "POST":
+        email = request.form["email"]
+        password = request.form["password"]
         with sqlite3.connect("database.sqlite") as con:
             cur = con.cursor()
             cur.execute("SELECT UserID from User WHERE Email=(?) AND Passwort=(?)", [(email), (password)])
             input = cur.fetchall()
             if len(input) > 0:
-                print('login Success')
-                user_found = 1
-                return redirect(url_for('profile'))
+                print("login Success")
+                userFound = 1
+                session["UserID"] = cur.execute("SELECT UserID from User WHERE Email=(?)", [(email)]).fetchone()[0]
+                return redirect(url_for("profile"))
             else: 
                 print("error: user not found")
-                user_found = 0
+                userFound = 0
                 
-    return render_template("login.html", user_found = user_found)
+    return render_template("login.html", userFound = userFound)
 
-@app.route('/register', methods = ['GET', 'POST'])
+@app.route("/logout", methods=["POST", "GET"])
+def logout():
+    session.pop("UserID", None)
+    return redirect(url_for("login"))
+
+@app.route("/register", methods = ["GET", "POST"])
 def register():
-    return render_template("register.html")
+    emptyField = None
+    emailExists = None
+    usernameExists = None
+    pwNotMatching = None
+    if request.method == "POST":
+        username = request.form["username"]
+        firstName = request.form["firstName"]
+        lastName = request.form["lastName"]
+        email = request.form["email"]
+        street = request.form["street"]
+        houseNum = request.form["houseNum"]
+        city = request.form["city"]
+        postalCode = request.form["postalCode"]
+        password = request.form["password"]
+        passwordConfirm = request.form["passwordConfirm"]
+        if username == "" or firstName == "" or lastName == "" or email == "" or street == "" or houseNum == "" or city == "" or postalCode == "" or password == "" or passwordConfirm== "":
+            print("empty field")
+            emptyField = 1
+        else:
+            emptyField = 0
+            with sqlite3.connect("database.sqlite") as con:
+                cur = con.cursor()
+                cur.execute("SELECT Email FROM User WHERE Email=(?)", [(email)])
+                findEmail = cur.fetchall()
+                cur.execute("SELECT Benutzername FROM User WHERE Benutzername=(?)", [(username)])
+                findUsername = cur.fetchall()
+                if len(findEmail) > 0:
+                    print("email already exists")
+                    emailExists = 1
+                if len(findUsername) > 0:
+                    print("username already exists")
+                    usernameExists = 1
+                if password != passwordConfirm:
+                    print("password not matching")
+                    pwNotMatching = 1
+                if emailExists != 1 and usernameExists != 1 and pwNotMatching != 1:
+                    cur.execute("INSERT INTO Adresse(Straße, Hausnummer, Ort, Postleitzahl) VALUES(?, ?, ?, ?)", (street, houseNum, city, postalCode))
+                    cur.execute("SELECT * FROM Adresse ORDER BY AdressID DESC LIMIT 1")
+                    addressID = cur.fetchone()[0]
+                    cur.execute("INSERT INTO User(Benutzername, Vorname, Nachname, Email, Passwort, Guthaben, Adresse) VALUES(?, ?, ?, ?, ?, 0, ?)", (username, firstName, lastName, email, password, addressID))
+                    con.commit()
+                    print("registration successful")
+                    return redirect(url_for("login"))
 
-@app.route('/profile')
+    return render_template("register.html", emptyField = emptyField, emailExists = emailExists, usernameExists = usernameExists, pwNotMatching = pwNotMatching)
+
+@app.route("/profile", methods = ["POST", "GET"])
 def profile():
-    return render_template('profile.html')
+    if session.get("UserID") is None:
+        return redirect(url_for("login"))
+    with sqlite3.connect("database.sqlite") as con:
+        cur = con.cursor()
+        userID = session["UserID"]
+        email = cur.execute("SELECT Email from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
+        username =cur.execute("SELECT Benutzername from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
+        firstName = cur.execute("SELECT Vorname from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
+        lastName = cur.execute("SELECT Nachname from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
+        addressID = cur.execute("SELECT Adresse from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
+        street = cur.execute("SELECT Straße from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
+        houseNum = cur.execute("SELECT Hausnummer from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
+        city = cur.execute("SELECT Ort from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
+        postalCode = cur.execute("SELECT Postleitzahl from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
+        credit = cur.execute("SELECT Guthaben from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
 
-@app.route('/findCar')
+    return render_template("profile.html", email = email, username = username, firstName = firstName, lastName = lastName, street = street, houseNum = houseNum, city = city, postalCode = postalCode, credit = credit)
+
+@app.route("/findCar")
 def findCar():
-    return render_template('findCar.html')
+    if session.get("UserID") is None:
+        return redirect(url_for("login"))
+    return render_template("findCar.html")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run()
