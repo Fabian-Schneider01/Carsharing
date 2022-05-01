@@ -98,6 +98,7 @@ def profile():
     city = None
     postalCode = None
     credit = None
+
     if session.get("UserID") is None:
         return redirect(url_for("login"))
     else:
@@ -114,7 +115,8 @@ def profile():
             city = cur.execute("SELECT Ort from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
             postalCode = cur.execute("SELECT Postleitzahl from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
             credit = cur.execute("SELECT Guthaben from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
-    
+        con.commit()
+
     car_added = None
     if request.method == 'POST':
         modell = request.form['modell']
@@ -145,6 +147,7 @@ def profile():
         #    else: 
         #        print("error: user not found")
         #        user_found = 0
+        con.commit()
         
         
     return render_template("profile.html", email = email, username = username, firstName = firstName, lastName = lastName, street = street, houseNum = houseNum, city = city, postalCode = postalCode, credit = credit)
