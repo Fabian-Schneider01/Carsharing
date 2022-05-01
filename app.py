@@ -8,7 +8,7 @@ app.secret_key = "4khJ7Ggljy"
 with app.app_context():
     createTabels()
 
-@app.route("/")
+@app.route('/')
 def home():
     return render_template("index.html")
 
@@ -88,23 +88,58 @@ def register():
 
 @app.route("/profile", methods = ["POST", "GET"])
 def profile():
-    if session.get("UserID") is None:
-        return redirect(url_for("login"))
-    with sqlite3.connect("database.sqlite") as con:
-        cur = con.cursor()
-        userID = session["UserID"]
-        email = cur.execute("SELECT Email from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
-        username =cur.execute("SELECT Benutzername from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
-        firstName = cur.execute("SELECT Vorname from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
-        lastName = cur.execute("SELECT Nachname from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
-        addressID = cur.execute("SELECT Adresse from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
-        street = cur.execute("SELECT Straße from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
-        houseNum = cur.execute("SELECT Hausnummer from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
-        city = cur.execute("SELECT Ort from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
-        postalCode = cur.execute("SELECT Postleitzahl from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
-        credit = cur.execute("SELECT Guthaben from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
+    email = None
+    if request.method == 'GET':
+        if session.get("UserID") is None:
+            return redirect(url_for("login"))
+        with sqlite3.connect("database.sqlite") as con:
+            cur = con.cursor()
+            userID = session["UserID"]
+            email = cur.execute("SELECT Email from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
+            username =cur.execute("SELECT Benutzername from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
+            firstName = cur.execute("SELECT Vorname from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
+            lastName = cur.execute("SELECT Nachname from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
+            addressID = cur.execute("SELECT Adresse from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
+            street = cur.execute("SELECT Straße from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
+            houseNum = cur.execute("SELECT Hausnummer from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
+            city = cur.execute("SELECT Ort from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
+            postalCode = cur.execute("SELECT Postleitzahl from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
+            credit = cur.execute("SELECT Guthaben from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
+    
+    car_added = None
+    if request.method == 'POST':
+        modell = request.form['modell']
+        print(modell)
+        fahrzeugtyp = request.form['fahrzeugtyp']
+        print(fahrzeugtyp)
+        hersteller = request.form['hersteller']
+        print(hersteller)
+        preis = request.form['preis']
+        print(preis)
+        startdate = request.form['startdate']
+        print(startdate)
+        enddate = request.form['enddate']
+        print(enddate)
+        car_id = 456
+        current_user_id = session['UserID']
+        with sqlite3.connect("database.sqlite") as con:
+            cur = con.cursor()
+            cur.execute("INSERT INTO Autos VALUES((?), (?), (?), (?), (?), (?), (?))", [(car_id), (hersteller), (modell), (fahrzeugtyp), (preis), (startdate), (enddate)])
+            cur.execute("INSERT INTO Autobesitzer VALUES((?), (?))", [current_user_id, car_id])
+            #input = cur.fetchall()
+            #print(input)
+        #    if len(input) > 0:
+        #        print('login Success')
+        #        user_found = 1
+        #        return redirect(url_for('profile'))
+        #    else: 
+        #        print("error: user not found")
+        #        user_found = 0
+        
+        car_added = 1
+        
+    return render_template("profile.html", car_added = car_added, email = email, username = username, firstName = firstName, lastName = lastName, street = street, houseNum = houseNum, city = city, postalCode = postalCode, credit = credit)
 
-    return render_template("profile.html", email = email, username = username, firstName = firstName, lastName = lastName, street = street, houseNum = houseNum, city = city, postalCode = postalCode, credit = credit)
 
 @app.route("/findCar")
 def findCar():
