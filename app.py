@@ -98,27 +98,57 @@ def profile():
     city = None
     postalCode = None
     credit = None
-
-    if session.get("UserID") is None:
-        return redirect(url_for("login"))
-    else:
-        with sqlite3.connect("database.sqlite") as con:
-            cur = con.cursor()
-            userID = session["UserID"]
-            email = cur.execute("SELECT Email from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
-            username =cur.execute("SELECT Benutzername from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
-            firstName = cur.execute("SELECT Vorname from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
-            lastName = cur.execute("SELECT Nachname from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
-            addressID = cur.execute("SELECT Adresse from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
-            street = cur.execute("SELECT Straße from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
-            houseNum = cur.execute("SELECT Hausnummer from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
-            city = cur.execute("SELECT Ort from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
-            postalCode = cur.execute("SELECT Postleitzahl from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
-            credit = cur.execute("SELECT Guthaben from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
-        con.commit()
+    if request.method == "GET":
+        if session.get("UserID") is None:
+            return redirect(url_for("login"))
+        else:
+            with sqlite3.connect("database.sqlite") as con:
+                cur = con.cursor()
+                userID = session["UserID"]
+                email = cur.execute("SELECT Email from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
+                username =cur.execute("SELECT Benutzername from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
+                firstName = cur.execute("SELECT Vorname from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
+                lastName = cur.execute("SELECT Nachname from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
+                addressID = cur.execute("SELECT Adresse from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
+                street = cur.execute("SELECT Straße from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
+                houseNum = cur.execute("SELECT Hausnummer from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
+                city = cur.execute("SELECT Ort from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
+                postalCode = cur.execute("SELECT Postleitzahl from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
+                credit = cur.execute("SELECT Guthaben from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
+            con.commit()
 
     if request.method == "POST" and request.form['formButton'] == "Speichern":
-        print("edit")
+        username = request.form["username"]
+        email = request.form["email"]
+        password = request.form["password"]
+        passwordConfirm = request.form["passwordConfirm"]
+        street = request.form["credit"]
+        houseNum = request.form["houseNum"]
+        city = request.form["city"]
+        postalCode = request.form["postalCode"]
+        credit = request.form["credit"]
+        with sqlite3.connect("database.sqlite") as con:
+            cur = con.cursor()
+            if username!="":
+                cur.execute("UPDATE User SET Benutzername=(?) WHERE UserID=(?)", [username, session["UserID"]])
+            if email!="":
+                cur.execute("UPDATE User SET Email=(?) WHERE UserID=(?)", [email, session["UserID"]])
+            if password == passwordConfirm:
+                cur.execute("UPDATE User SET Passwort=(?) WHERE UserID=(?)", [password, session["UserID"]])
+            if street!="":
+                cur.execute("UPDATE Adresse SET Straße=(?) WHERE AdressID=(?)", [street, session["UserID"]])
+            if houseNum!="":
+               cur.execute("UPDATE Adresse SET Hausnummer=(?) WHERE AdressID=(?)", [houseNum, session["UserID"]])
+            if city!="":
+                cur.execute("UPDATE Adresse SET Ort=(?) WHERE AdressID=(?)", [city, session["UserID"]])
+            if postalCode!="":
+                cur.execute("UPDATE Adresse SET Postleitzahl=(?) WHERE AdressID=(?)", [postalCode, session["UserID"]])
+            if credit!="":
+                cur.execute("UPDATE User SET Guthaben=(?) WHERE UserID=(?)", [credit, session["UserID"]])
+            cur.fetchall()
+        con.commit()
+        return redirect(url_for("profile"))
+
     elif request.method == 'POST' and request.form['formButton'] == "Hinzufügen":
         modell = request.form['modell']
         print(modell)
@@ -139,16 +169,8 @@ def profile():
             car_id = cur.execute("SELECT AutoID FROM Autos WHERE AutoID=(SELECT max(AutoID) FROM Autos)").fetchone()[0]
             print(car_id)
             cur.execute("INSERT INTO Autobesitzer VALUES((?), (?))", [current_user_id, car_id])
-            #input = cur.fetchall()
-            #print(input)
-        #    if len(input) > 0:
-        #        print('login Success')
-        #        user_found = 1
-        #        return redirect(url_for('profile'))
-        #    else: 
-        #        print("error: user not found")
-        #        user_found = 0
         con.commit()
+        return redirect(url_for("profile"))
         
         
     return render_template("profile.html", email = email, username = username, firstName = firstName, lastName = lastName, street = street, houseNum = houseNum, city = city, postalCode = postalCode, credit = credit)

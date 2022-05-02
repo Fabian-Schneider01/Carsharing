@@ -112,40 +112,56 @@
                             <!-- Modal body -->
                             <div class="modal-body">
                                 <div class="form-group">
-                                    <label for="name">Neuer Username</label>
-                                    <input type="text" class="form-control mb-4 mt-2" id="name" name="name">
+                                    <label for="username">Username</label>
+                                    <input type="text" class="form-control mb-4 mt-2" id="username" name="username">
                                 </div>
                                 <div class="form-group">
-                                    <label for="email">Neue Email Addresse</label>
+                                    <label for="email">Email Addresse</label>
                                     <input type="email" class="form-control mb-4 mt-2" id="email" name="email">
                                 </div>
                                 <div class="form-group">
-                                    <label for="password">Neues Passwort</label>
+                                    <label for="password">Passwort</label>
                                     <input type="password" class="form-control mb-4 mt-2" id="password" name="password">
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="passwordConfirm">Neues Passwort bestätigen</label>
+                                    <label for="passwordConfirm">Passwort bestätigen</label>
                                     <input type="password" class="form-control mb-4 mt-2" id="passwordConfirm" name="passwordConfirm">
                                 </div>
-                                <div class="form-group">
-                                    <label for="email">Neue Adresse</label>
-                                    <input type="email" class="form-control mb-4 mt-2" id="email" name="email">
+                                <div class="form-group row">
+                                    <div class="col-8">
+                                        <label for="street">Straße</label>
+                                        <input type="text" class="form-control mb-4 mt-2" id="email" name="email">
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="houseNum">Hausnummer</label>
+                                        <input type="text" class="form-control mb-4 mt-2" id="houseNum" name="houseNum">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-8">
+                                        <label for="city">Stadt</label>
+                                        <input type="text" class="form-control mb-4 mt-2" id="city" name="city">
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="postalCode">Postleitzahl</label>
+                                        <input type="text" class="form-control mb-4 mt-2" id="postalCode" name="postalCode">
+                                    </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Guthaben</label>
+                                    <label for="credit">Guthaben</label>
                                     <div class="input-group mt-2">
                                         <span class="input-group-btn">
-                                            <button id="add-credit">
-                                                <svg data-type="minus" type="button" data-field="quant[1]" style="margin-right: 5px; margin-top: 3px;" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#0d6efd" class="btn-number bi bi-dash-circle-fill ml-5" viewBox="0 0 16 16">
+                                            <button id="subtract-credit">
+                                                <svg data-type="minus" type="button" data-field="credit" style="margin-right: 5px; margin-top: 3px;" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#0d6efd" class="btn-price bi bi-dash-circle-fill ml-5" viewBox="0 0 16 16">
                                                     <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7z"/>
                                                 </svg>
                                             </button>
                                         </span>
-                                        <input style="border-radius: 5px;"type="text" name="quant[2]" class="form-control input-number" value="200" min="1" max="1000">
+                                        <input style="border-radius: 5px;"type="preis" name="credit" class="form-control input-number" id="preis_id" value="0" min="1" max="1000">
                                         <span class="input-group-btn">
                                             <button id="add-credit">
-                                                <svg data-type="plus" data-field="quant[2]" xmlns="http://www.w3.org/2000/svg" style="margin-left: 5px; margin-top: 3px;" type="button" width="25" height="25" fill="#0d6efd" class="btn-number bi bi-plus-circle-fill mr-5" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
+                                                <svg data-type="plus" type="button" data-field="credit" style="margin-left: 5px; margin-top: 3px;" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#0d6efd" class="btn-price bi bi-plus-circle-fill mr-5" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
                                                 </svg>
                                             </button>
                                         </span>
