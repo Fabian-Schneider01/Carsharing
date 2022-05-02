@@ -117,8 +117,9 @@ def profile():
             credit = cur.execute("SELECT Guthaben from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
         con.commit()
 
-    car_added = None
-    if request.method == 'POST':
+    if request.method == "POST" and request.form['formButton'] == "Speichern":
+        print("edit")
+    elif request.method == 'POST' and request.form['formButton'] == "Hinzufügen":
         modell = request.form['modell']
         print(modell)
         fahrzeugtyp = request.form['fahrzeugtyp']
