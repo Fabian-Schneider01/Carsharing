@@ -116,6 +116,11 @@ def profile():
             postalCode = cur.execute("SELECT Postleitzahl from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
             credit = cur.execute("SELECT Guthaben from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
         con.commit()
+        with sqlite3.connect("database.sqlite") as con:
+            # for displaying all the car the user has added
+            cur = con.cursor()
+            userID = session["UserID"]
+            cars = cur.execute("SELECT Hersteller, Modell, Fahrzeugtyp, PreisProTag, Startdatum, Enddatum FROM User LEFT JOIN Autobesitzer ON User.UserID = Autobesitzer.User LEFT JOIN Autos ON Autobesitzer.Auto = Autos.AutoID WHERE UserID=(?)", [(userID)]).fetchall()
 
     car_added = None
     if request.method == 'POST':
@@ -150,7 +155,7 @@ def profile():
         con.commit()
         
         
-    return render_template("profile.html", email = email, username = username, firstName = firstName, lastName = lastName, street = street, houseNum = houseNum, city = city, postalCode = postalCode, credit = credit)
+    return render_template("profile.html", email = email, username = username, firstName = firstName, lastName = lastName, street = street, houseNum = houseNum, city = city, postalCode = postalCode, credit = credit, cars = cars)
 
 
 @app.route("/findCar")
