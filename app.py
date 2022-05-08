@@ -1,6 +1,7 @@
 from flask import *
 import sqlite3
 from models import createTabels
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = "4khJ7Ggljy"
@@ -10,7 +11,7 @@ with app.app_context():
 
 @app.route('/')
 def home():
-    return render_template("index.html")
+    return render_template("login.html")
 
 @app.route("/login", methods = ["GET", "POST"])
 def login():
@@ -98,8 +99,13 @@ def profile():
     city = None
     postalCode = None
     credit = None
+    password = None
     if request.method == "GET":
         if session.get("UserID") is None:
+            with sqlite3.connect("database.sqlite") as con:
+                cur = con.cursor()
+                cur.execute("UPDATE User SET Passwort=(?) WHERE UserID=(?)", ["erimu", 4])
+                cur.fetchall()   
             return redirect(url_for("login"))
         else:
             with sqlite3.connect("database.sqlite") as con:
@@ -116,6 +122,11 @@ def profile():
                 postalCode = cur.execute("SELECT Postleitzahl from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
                 credit = cur.execute("SELECT Guthaben from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
             con.commit()
+            with sqlite3.connect("database.sqlite") as con:
+            # for displaying all the car the user has added
+                cur = con.cursor()
+                userID = session["UserID"]
+                cars = cur.execute("SELECT Hersteller, Modell, Fahrzeugtyp, PreisProTag, Startdatum, Enddatum FROM User LEFT JOIN Autobesitzer ON User.UserID = Autobesitzer.User LEFT JOIN Autos ON Autobesitzer.Auto = Autos.AutoID WHERE UserID=(?)", [(userID)]).fetchall()
 
     if request.method == "POST" and request.form['formButton'] == "Speichern":
         username = request.form["username"]
@@ -133,7 +144,7 @@ def profile():
                 cur.execute("UPDATE User SET Benutzername=(?) WHERE UserID=(?)", [username, session["UserID"]])
             if email!="":
                 cur.execute("UPDATE User SET Email=(?) WHERE UserID=(?)", [email, session["UserID"]])
-            if password == passwordConfirm:
+            if password != "" and password == passwordConfirm:
                 cur.execute("UPDATE User SET Passwort=(?) WHERE UserID=(?)", [password, session["UserID"]])
             if street!="":
                 cur.execute("UPDATE Adresse SET Straße=(?) WHERE AdressID=(?)", [street, session["UserID"]])
@@ -173,14 +184,71 @@ def profile():
         return redirect(url_for("profile"))
         
         
-    return render_template("profile.html", email = email, username = username, firstName = firstName, lastName = lastName, street = street, houseNum = houseNum, city = city, postalCode = postalCode, credit = credit)
+    return render_template("profile.html", email = email, username = username, firstName = firstName, lastName = lastName, street = street, houseNum = houseNum, city = city, postalCode = postalCode, credit = credit, password = password, cars = cars)
 
 
-@app.route("/findCar")
+@app.route("/findCar", methods=["POST", "GET"])
 def findCar():
+    matchedUserCars = None
+    cars = None
     if session.get("UserID") is None:
         return redirect(url_for("login"))
-    return render_template("findCar.html")
+    else:
+        with sqlite3.connect("database.sqlite") as con:
+            # for displaying all the car the user has added
+                cur = con.cursor()
+                userID = session["UserID"]
+                cars = cur.execute("SELECT AutoID, Hersteller, Modell, Fahrzeugtyp, PreisProTag, Startdatum, Enddatum FROM Autos").fetchall()
+        if request.method == "POST":
+            #change name to rentCar-i => i = AutoID 
+            with sqlite3.connect("database.sqlite") as con:
+                cur = con.cursor()
+                if request.form.get("filter") == "Suchen":
+                    filterPlace = request.form["place"]
+                    filterStartdate = request.form["startdate"]
+                    filterEnddate = request.form["enddate"]
+                    filterClass = request.form["carclass"]
+                    filterMaxPrice = request.form["maxprice"]
+                    print("Filtered Search: ", filterPlace, " ", filterStartdate, " ", filterEnddate, " ", filterClass, " ", filterMaxPrice)
+                    #for i in range(cur.execute("SELECT COUNT(*) FROM Autos").fetchone()[0]):
+                    matchingUser = cur.execute("SELECT UserID FROM User INNER JOIN Adresse ON Adresse.AdressID = User.Adresse WHERE Adresse.Ort == (?)", [(filterPlace)]).fetchall()              
+                    if matchingUser != []:
+                        print(matchingUser[0][0])
+                        matchedUserCars = cur.execute("SELECT AutoID, Hersteller, Modell, Fahrzeugtyp, PreisProTag, Startdatum, Enddatum FROM User LEFT JOIN Autobesitzer ON User.UserID = Autobesitzer.User LEFT JOIN Autos ON Autobesitzer.Auto = Autos.AutoID WHERE UserID=(?)", [(matchingUser[0][0])]).fetchall()
+                        print(matchedUserCars[0])
+                        if matchedUserCars != "":
+                            for i in range(len(matchedUserCars)):
+                                if filterClass in matchedUserCars[i][3]:
+                                    if filterStartdate >= matchedUserCars[i][5] and filterStartdate <= matchedUserCars[i][6] and filterEnddate >= matchedUserCars[i][5] and filterEnddate <= matchedUserCars[i][6]:
+                                        totalPrice = (datetime.strptime(filterEnddate, "%Y-%m-%d") - datetime.strptime(filterStartdate, "%Y-%m-%d")).days * matchedUserCars[i][4]
+                                        if totalPrice <= int(filterMaxPrice):
+                                            cars = matchedUserCars
+                                            session["matchedCars"] = matchedUserCars
+                                            return render_template("findCar.html", cars = cars)
+                else:
+                    for i in range(len(session["matchedCars"])):
+                        print(session["matchedCars"][i][0])
+                        if request.form.get(str(session["matchedCars"][i][0])) == "mieten":
+                            print("selected car")
+                            lessor = cur.execute("SELECT User FROM Autobesitzer WHERE Auto = (?)", [(session["matchedCars"][i][0])]).fetchone()[0] #change 30 to variable
+                            startDate = cur.execute("SELECT Startdatum FROM Autos WHERE AutoID = (?)", [(session["matchedCars"][i][0])]).fetchone()[0] #change 30 to variable
+                            endDate = cur.execute("SELECT Enddatum FROM Autos WHERE AutoID = (?)", [(session["matchedCars"][i][0])]).fetchone()[0] #change 30 to variable
+                            pricePerDay = cur.execute("SELECT PreisProTag FROM Autos WHERE AutoID = (?)", [(session["matchedCars"][i][0])]).fetchone()[0] #change 30 to variable
+                            ammountDays = cur.execute("SELECT JULIANDAY(Enddatum) - JULIANDAY(Startdatum) AS difference FROM Autos WHERE AutoID = (?)", [(session["matchedCars"][i][0])]).fetchone()[0]
+                            endPrice = ammountDays * pricePerDay
+                            print(session["UserID"])
+                            print(lessor)
+                            print(endPrice)
+                            print(startDate)
+                            print(endDate)
+                            
+                            cur.execute("INSERT INTO Mietauftrag(Mieter, Vermieter, Auto, Gesamtpreis, Startdatum, Enddatum, Ueberweisungsdatum) VALUES(?, ?, ?, ?, ?, ?, ?)", ((session["UserID"]), (lessor), (session["matchedCars"][i][0]), (endPrice), (startDate), (endDate), (startDate)))
+                            cur.execute("UPDATE User SET Guthaben= Guthaben - (?) WHERE UserID=(?)", [(endPrice), (session["UserID"])])
+                            cur.execute("UPDATE User SET Guthaben= Guthaben + (?) WHERE UserID=(?)", [(endPrice), (lessor)])
+                            con.commit()
+                            break
+                
+    return render_template("findCar.html")#producer=producer, model=model, price=price)
 
 if __name__ == "__main__":
     app.run()

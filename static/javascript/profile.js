@@ -65,7 +65,7 @@ $('.input-number').focusin(function(){
 });
 $('.input-number').change(function() {
 
-    minValue =  parseInt($(this).attr('min'));
+    minValue =  0;
     maxValue =  parseInt($(this).attr('max'));
     valueCurrent = parseInt($(this).val());
 

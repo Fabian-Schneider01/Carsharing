@@ -54,48 +54,25 @@
 
             <div class="card mt-4 mb-4">
                 <h4 class="card-header text-center d-flex justify-content-between align-items-center">
-                    Autos
+                    Eigene Autos
                     <svg xmlns="http://www.w3.org/2000/svg"  data-bs-toggle="modal" data-bs-target="#myCarModal" style="margin-right: 1rem;" type="button" width="25" height="25" fill="#0d6efd" class=" bi bi-plus-circle-fill mr-5" viewBox="0 0 16 16">
                         <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/></a>
                     </svg>
-
                 </h4>
-                </h4>
-
                 <div class="card-body">
+                    {% for car in cars %}
                     <div class="card shadow-sm mt-2 mb-4">
                         <h5 class="card-header text-center d-flex justify-content-between align-items-center">
-                            Mercedes EQS
+                            {{car[0]}} {{car[1]}} {{car[2]}}
                             <button type="button" class="btn btn-sm btn-primary">Bearbeiten</button>
                         </h5>
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item">Tagespreis: 90 Euro</li>
-                            <li class="list-group-item">Verfügbare Tage: 30</li>
-                            <li class="list-group-item">Addresse: Stuttgart</li>
+                            <li class="list-group-item">Tagespreis: {{car[3]}}</li>
+                            <li class="list-group-item">Verfügbar ab: {{car[4]}}</li>
+                            <li class="list-group-item">Verfügbar bis: {{car[5]}}</li>
                         </ul>
                     </div>
-                    <div class="card shadow-sm mt-2 mb-4">
-                        <h5 class="card-header text-center d-flex justify-content-between align-items-center">
-                            Smart Forfour
-                            <button type="button" class="btn btn-sm btn-primary">Bearbeiten</button>
-                        </h5>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item">Tagespreis: 30 Euro</li>
-                            <li class="list-group-item">Verfügbare Tage: 10</li>
-                            <li class="list-group-item">Addresse: Ludwigsburg</li>
-                        </ul>
-                    </div>
-                    <div class="card shadow-sm mt-2 mb-4">
-                        <h5 class="card-header text-center d-flex justify-content-between align-items-center">
-                            VW Golf
-                            <button type="button" class="btn btn-sm btn-primary">Bearbeiten</button>
-                        </h5>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item">Preis: 50 Euro</li>
-                            <li class="list-group-item">Verfügbare Tage: 20</li>
-                            <li class="list-group-item">Addresse: Stuttgart</li>
-                        </ul>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
             <!-- MODALS -->
@@ -113,39 +90,39 @@
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label for="username">Username</label>
-                                    <input type="text" class="form-control mb-4 mt-2" id="username" name="username">
+                                    <input type="text" class="form-control mb-4 mt-2" id="username" name="username" value="{{username}}">
                                 </div>
                                 <div class="form-group">
                                     <label for="email">Email Addresse</label>
-                                    <input type="email" class="form-control mb-4 mt-2" id="email" name="email">
+                                    <input type="email" class="form-control mb-4 mt-2" id="email" name="email" value="{{email}}">
                                 </div>
                                 <div class="form-group">
                                     <label for="password">Passwort</label>
-                                    <input type="password" class="form-control mb-4 mt-2" id="password" name="password">
+                                    <input type="password" class="form-control mb-4 mt-2" id="password" name="password" value="{{password}}">
                                 </div>
 
                                 <div class="form-group">
                                     <label for="passwordConfirm">Passwort bestätigen</label>
-                                    <input type="password" class="form-control mb-4 mt-2" id="passwordConfirm" name="passwordConfirm">
+                                    <input type="password" class="form-control mb-4 mt-2" id="passwordConfirm" name="passwordConfirm" value="{{password}}">
                                 </div>
                                 <div class="form-group row">
                                     <div class="col-8">
                                         <label for="street">Straße</label>
-                                        <input type="text" class="form-control mb-4 mt-2" id="email" name="email">
+                                        <input type="text" class="form-control mb-4 mt-2" id="email" name="email" value="{{street}}">
                                     </div>
                                     <div class="col-4">
                                         <label for="houseNum">Hausnummer</label>
-                                        <input type="text" class="form-control mb-4 mt-2" id="houseNum" name="houseNum">
+                                        <input type="text" class="form-control mb-4 mt-2" id="houseNum" name="houseNum" value="{{houseNum}}">
                                     </div>
                                 </div>
                                 <div class="form-group row">
                                     <div class="col-8">
                                         <label for="city">Stadt</label>
-                                        <input type="text" class="form-control mb-4 mt-2" id="city" name="city">
+                                        <input type="text" class="form-control mb-4 mt-2" id="city" name="city" value="{{city}}">
                                     </div>
                                     <div class="col-4">
                                         <label for="postalCode">Postleitzahl</label>
-                                        <input type="text" class="form-control mb-4 mt-2" id="postalCode" name="postalCode">
+                                        <input type="text" class="form-control mb-4 mt-2" id="postalCode" name="postalCode" value="{{postalCode}}">
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -158,7 +135,7 @@
                                                 </svg>
                                             </button>
                                         </span>
-                                        <input style="border-radius: 5px;"type="preis" name="credit" class="form-control input-number" id="preis_id" value="0" min="1" max="1000">
+                                        <input style="border-radius: 5px;"type="preis" name="credit" class="form-control input-number" id="preis_id" value="{{ credit }}" min="1" max="1000">
                                         <span class="input-group-btn">
                                             <button id="add-credit">
                                                 <svg data-type="plus" type="button" data-field="credit" style="margin-left: 5px; margin-top: 3px;" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#0d6efd" class="btn-price bi bi-plus-circle-fill mr-5" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
@@ -177,6 +154,7 @@
                 </div>
             </div>
         </div>
+        
         <!-- Car Modal -->
         <div class="modal" id="myCarModal">
             <div class="modal-dialog">
