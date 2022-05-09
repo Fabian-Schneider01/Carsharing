@@ -175,11 +175,31 @@ def edit_car(id):
     # fix the default dates and price in profile.html
     return redirect(url_for("profile"))
 
-@app.route("/findCar")
+@app.route("/findCar", methods=['GET', 'POST'])
 def findCar():
     if session.get("UserID") is None:
         return redirect(url_for("login"))
-    return render_template("findCar.html")
+    else:
+        with sqlite3.connect("database.sqlite") as con:
+            # for displaying all the cars the user has added
+            cur = con.cursor()
+            cars = cur.execute("SELECT AutoID, Hersteller, Modell, Fahrzeugtyp, PreisProTag, Startdatum, Enddatum FROM Autos").fetchall()
+            # TODO: dont select the cars where the current user is the owner
+            # TODO: call the table with all the timeframes where the cars have already been rented for the detail view
+            # TODO: join with the owners' table
+    # is called when the user clicked to rent the car
+    if request.method == 'POST':
+        startdate = request.form['startdate']
+        print(startdate)
+        enddate = request.form['enddate']
+        print(enddate)
+        current_user_id = session['UserID']
+        id_car = None
+        # TODO: insert car renting order details into database.
+        #with sqlite3.connect("database.sqlite") as con:
+        #    cur.execute("INSERT INTO Autobesitzer VALUES((?), (?))", [current_user_id, car_id])
+        #con.commit()
+    return render_template("findCar.html", cars = cars)
 
 if __name__ == "__main__":
     app.run()
