@@ -62,19 +62,87 @@
                 </h4>
                 </h4>
                 <div class="card-body">
+
                     {% for car in cars %}
+
                     <div class="card shadow-sm mt-2 mb-4">
                         <h5 class="card-header text-center d-flex justify-content-between align-items-center">
-                            {{car[0]}} {{car[1]}} {{car[2]}}
-                            <button type="button" class="btn btn-sm btn-primary">Bearbeiten</button>
+                            {{car[1]}} {{car[2]}} {{car[3]}}
+                            <!--<button type="button" class="btn btn-sm btn-primary">Bearbeiten</button>-->
+                            <button type="button" data-bs-toggle="modal" data-bs-target="#edit{{ car[0] }}" data-id="{{ car[0] }}" class="btn btn-sm btn-primary"> Bearbeiten </button>
                         </h5>
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item">Tagespreis: {{car[3]}}</li>
-                            <li class="list-group-item">Verfügbar ab: {{car[4]}}</li>
-                            <li class="list-group-item">Verfügbar bis: {{car[5]}}</li>
+                            <li class="list-group-item">Tagespreis: {{car[4]}}</li>
+                            <li class="list-group-item">Verfügbar ab: {{car[5]}}</li>
+                            <li class="list-group-item">Verfügbar bis: {{car[6]}}</li>
                         </ul>
                     </div>
+
+                    <!-- Update modal -->
+                    <div class="modal" id="edit{{ car[0] }}">
+                        <div class="modal-dialog">
+                        <div class="modal-content">                 
+                            <div class="modal-header">
+                                <h4 class="modal-title">Auto bearbeiten</h4>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+
+                            <form method="POST" action="/edit-car/{{car[0]}}">
+
+                            <!-- Modal body -->
+                            <div class="modal-body">                
+                                <div class="form-group">
+                                    <label for="modell">Modell</label>
+                                    <input type="modell" class="form-control mb-4 mt-2" id="modell_id" name="modell" placeholder="{{car[2]}}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="fahrzeugtyp">Fahrzeugtyp</label>
+                                    <input type="fahrzeugtyp" class="form-control mb-4 mt-2" id="fahrzeugtyp_id" name="fahrzeugtyp" placeholder="{{car[3]}}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="hersteller">Hersteller</label>
+                                    <input type="hersteller" class="form-control mb-4 mt-2" id="hersteller_id" name="hersteller" placeholder="{{car[1]}}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="preis">Preis (pro Tag in Euro)</label>
+                                    <div class="input-group mt-2">
+                                        <span class="input-group-btn">
+                                            <button id="subtract-credit">
+                                                <svg data-type="minus" type="button" data-field="preis" style="margin-right: 5px; margin-top: 3px;" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#0d6efd" class="btn-price bi bi-dash-circle-fill ml-5" viewBox="0 0 16 16">
+                                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7z"/>
+                                                </svg>
+                                            </button>
+                                        </span>
+                                        <input style="border-radius: 5px;"type="preis" name="preis" class="form-control input-number" id="preis_id" value="0" min="1" max="1000"  placeholder="{{car[4]}}">
+                                        <span class="input-group-btn">
+                                            <button id="add-credit">
+                                                <svg data-type="plus" type="button" data-field="preis" style="margin-left: 5px; margin-top: 3px;" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#0d6efd" class="btn-price bi bi-plus-circle-fill mr-5" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
+                                                </svg>
+                                            </button>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="form-group mt-2">
+                                    <label for="period" class="mt-2 mb-2">Verfügbarer Zeitraum</label>
+                                    <!--<form action="/action_page.php">-->
+                                    <div>
+                                        <input type="date" id="startdate_id" name="startdate" placeholder="{{car[5]}}">
+                                        <label for="date">bis</label>
+                                        <input type="date" id="enddate_id" name="enddate" class="mb-2" placeholder="{{car[6]}}">
+                                    </div><!--</form>-->
+                                </div>          
+                            </div>
+                    
+                            <div style="text-align: center">
+                            <button type="submit" class="btn btn-primary" name="editCar" data-bs-dismiss="modal">Speichern</button> 
+                            </div>
+                            </form>
+                        </div>
+                        </div>
+                    </div>
+
                     {% endfor %}
+
                 </div>
             </div>
             <!-- MODALS -->

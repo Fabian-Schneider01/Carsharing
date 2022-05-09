@@ -117,10 +117,10 @@ def profile():
             credit = cur.execute("SELECT Guthaben from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
         con.commit()
         with sqlite3.connect("database.sqlite") as con:
-            # for displaying all the car the user has added
+            # for displaying all the cars the user has added
             cur = con.cursor()
             userID = session["UserID"]
-            cars = cur.execute("SELECT Hersteller, Modell, Fahrzeugtyp, PreisProTag, Startdatum, Enddatum FROM User LEFT JOIN Autobesitzer ON User.UserID = Autobesitzer.User LEFT JOIN Autos ON Autobesitzer.Auto = Autos.AutoID WHERE UserID=(?)", [(userID)]).fetchall()
+            cars = cur.execute("SELECT AutoID, Hersteller, Modell, Fahrzeugtyp, PreisProTag, Startdatum, Enddatum FROM User LEFT JOIN Autobesitzer ON User.UserID = Autobesitzer.User LEFT JOIN Autos ON Autobesitzer.Auto = Autos.AutoID WHERE UserID=(?)", [(userID)]).fetchall()
 
     car_added = None
     if request.method == 'POST':
@@ -157,6 +157,23 @@ def profile():
         
     return render_template("profile.html", email = email, username = username, firstName = firstName, lastName = lastName, street = street, houseNum = houseNum, city = city, postalCode = postalCode, credit = credit, cars = cars)
 
+@app.route("/edit-car/<id>", methods=['GET', 'POST'])
+def edit_car(id):
+    print(id)
+    modell = request.form['modell']
+    fahrzeugtyp = request.form['fahrzeugtyp']
+    hersteller = request.form['hersteller']
+    preis = request.form['preis']
+    startdate = request.form['startdate']
+    enddate = request.form['enddate']
+
+    with sqlite3.connect("database.sqlite") as con:
+            cur = con.cursor()
+            cur.execute("UPDATE Autos SET Hersteller=(?), Modell=(?), Fahrzeugtyp=(?), PreisProTag=(?), Startdatum=(?), Enddatum=(?) WHERE AutoID=(?)", [(hersteller), (modell), (fahrzeugtyp), (preis), (startdate), (enddate), (id)])
+    con.commit()
+    # TODO
+    # fix the default dates and price in profile.html
+    return redirect(url_for("profile"))
 
 @app.route("/findCar")
 def findCar():
