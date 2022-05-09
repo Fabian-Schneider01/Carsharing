@@ -100,11 +100,11 @@ def profile():
     postalCode = None
     credit = None
     password = None
+    rented = []
     if request.method == "GET":
         if session.get("UserID") is None:
             with sqlite3.connect("database.sqlite") as con:
                 cur = con.cursor()
-                cur.execute("UPDATE User SET Passwort=(?) WHERE UserID=(?)", ["erimu", 4])
                 cur.fetchall()   
             return redirect(url_for("login"))
         else:
@@ -115,6 +115,7 @@ def profile():
                 username =cur.execute("SELECT Benutzername from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
                 firstName = cur.execute("SELECT Vorname from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
                 lastName = cur.execute("SELECT Nachname from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
+                password = cur.execute("SELECT Passwort from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
                 addressID = cur.execute("SELECT Adresse from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
                 street = cur.execute("SELECT Straße from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
                 houseNum = cur.execute("SELECT Hausnummer from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
@@ -126,14 +127,20 @@ def profile():
             # for displaying all the car the user has added
                 cur = con.cursor()
                 userID = session["UserID"]
-                cars = cur.execute("SELECT Hersteller, Modell, Fahrzeugtyp, PreisProTag, Startdatum, Enddatum FROM User LEFT JOIN Autobesitzer ON User.UserID = Autobesitzer.User LEFT JOIN Autos ON Autobesitzer.Auto = Autos.AutoID WHERE UserID=(?)", [(userID)]).fetchall()
-
+                cars = cur.execute("SELECT AutoID, Hersteller, Modell, Fahrzeugtyp, PreisProTag, Startdatum, Enddatum FROM User LEFT JOIN Autobesitzer ON User.UserID = Autobesitzer.User LEFT JOIN Autos ON Autobesitzer.Auto = Autos.AutoID WHERE UserID=(?)", [(userID)]).fetchall()
+                """for i in range(len(cars)): #later to show if a car was rented
+                    for o in range(len(cur.execute("SELECT Auto FROM Mietauftrag").fetchall())):
+                        if cars[i][0] == cur.execute("SELECT Auto FROM Mietauftrag").fetchall()[o][0]:
+                            rented.append(1)
+                        else:
+                            rented.append(0)
+                print(rented)"""
     if request.method == "POST" and request.form['formButton'] == "Speichern":
         username = request.form["username"]
         email = request.form["email"]
         password = request.form["password"]
         passwordConfirm = request.form["passwordConfirm"]
-        street = request.form["credit"]
+        street = request.form["street"]
         houseNum = request.form["houseNum"]
         city = request.form["city"]
         postalCode = request.form["postalCode"]
@@ -144,8 +151,9 @@ def profile():
                 cur.execute("UPDATE User SET Benutzername=(?) WHERE UserID=(?)", [username, session["UserID"]])
             if email!="":
                 cur.execute("UPDATE User SET Email=(?) WHERE UserID=(?)", [email, session["UserID"]])
-            if password != "" and password == passwordConfirm:
+            if password != "":
                 cur.execute("UPDATE User SET Passwort=(?) WHERE UserID=(?)", [password, session["UserID"]])
+                print(password)
             if street!="":
                 cur.execute("UPDATE Adresse SET Straße=(?) WHERE AdressID=(?)", [street, session["UserID"]])
             if houseNum!="":
@@ -184,7 +192,7 @@ def profile():
         return redirect(url_for("profile"))
         
         
-    return render_template("profile.html", email = email, username = username, firstName = firstName, lastName = lastName, street = street, houseNum = houseNum, city = city, postalCode = postalCode, credit = credit, password = password, cars = cars)
+    return render_template("profile.html", email = email, username = username, firstName = firstName, lastName = lastName, street = street, houseNum = houseNum, city = city, postalCode = postalCode, credit = credit, password = password, cars = cars, rentCars = [], rented = rented)
 
 
 @app.route("/findCar", methods=["POST", "GET"])
@@ -247,8 +255,9 @@ def findCar():
                             cur.execute("UPDATE User SET Guthaben= Guthaben + (?) WHERE UserID=(?)", [(endPrice), (lessor)])
                             con.commit()
                             break
+                    
                 
-    return render_template("findCar.html")#producer=producer, model=model, price=price)
+    return render_template("findCar.html", cars = cars)#producer=producer, model=model, price=price)
 
 if __name__ == "__main__":
     app.run()
