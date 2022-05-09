@@ -194,8 +194,25 @@ def profile():
         
     return render_template("profile.html", email = email, username = username, firstName = firstName, lastName = lastName, street = street, houseNum = houseNum, city = city, postalCode = postalCode, credit = credit, password = password, cars = cars, rentCars = [], rented = rented)
 
+@app.route("/edit-car/<id>", methods=['GET', 'POST'])
+def edit_car(id):
+    print(id)
+    modell = request.form['modell']
+    fahrzeugtyp = request.form['fahrzeugtyp']
+    hersteller = request.form['hersteller']
+    preis = request.form['preis']
+    startdate = request.form['startdate']
+    enddate = request.form['enddate']
 
-@app.route("/findCar", methods=["POST", "GET"])
+    with sqlite3.connect("database.sqlite") as con:
+            cur = con.cursor()
+            cur.execute("UPDATE Autos SET Hersteller=(?), Modell=(?), Fahrzeugtyp=(?), PreisProTag=(?), Startdatum=(?), Enddatum=(?) WHERE AutoID=(?)", [(hersteller), (modell), (fahrzeugtyp), (preis), (startdate), (enddate), (id)])
+    con.commit()
+    # TODO
+    # fix the default dates and price in profile.html
+    return redirect(url_for("profile"))
+
+@app.route("/findCar", methods=['GET', 'POST'])
 def findCar():
     matchedUserCars = None
     cars = None
@@ -256,8 +273,28 @@ def findCar():
                             con.commit()
                             break
                     
-                
+    """            
     return render_template("findCar.html", cars = cars)#producer=producer, model=model, price=price)
+            # for displaying all the cars the user has added
+            cur = con.cursor()
+            cars = cur.execute("SELECT AutoID, Hersteller, Modell, Fahrzeugtyp, PreisProTag, Startdatum, Enddatum FROM Autos").fetchall()
+            # TODO: dont select the cars where the current user is the owner
+            # TODO: call the table with all the timeframes where the cars have already been rented for the detail view
+            # TODO: join with the owners' table
+    # is called when the user clicked to rent the car
+    """
+    if request.method == 'POST':
+        startdate = request.form['startdate']
+        print(startdate)
+        enddate = request.form['enddate']
+        print(enddate)
+        current_user_id = session['UserID']
+        id_car = None
+        # TODO: insert car renting order details into database.
+        #with sqlite3.connect("database.sqlite") as con:
+        #    cur.execute("INSERT INTO Autobesitzer VALUES((?), (?))", [current_user_id, car_id])
+        #con.commit()
+    return render_template("findCar.html", cars = cars)
 
 if __name__ == "__main__":
     app.run()
