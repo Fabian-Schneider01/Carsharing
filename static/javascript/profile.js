@@ -9,7 +9,7 @@ $('.btn-number').click(function(e){
         if(type == 'minus') {
 
             if(currentVal > input.attr('min')) {
-                input.val(currentVal - 1).change();
+                input.val(currentVal - 10).change();
             }
             if(parseInt(input.val()) == input.attr('min')) {
                 $(this).attr('disabled', true);
@@ -40,7 +40,7 @@ $('.btn-price').click(function(e){
         if(type == 'minus') {
 
             if(currentVal > input.attr('min')) {
-                input.val(currentVal - 1).change();
+                input.val(currentVal - 10).change();
             }
             if(parseInt(input.val()) == input.attr('min')) {
                 $(this).attr('disabled', true);
@@ -65,7 +65,7 @@ $('.input-number').focusin(function(){
 });
 $('.input-number').change(function() {
 
-    minValue =  parseInt($(this).attr('min'));
+    minValue =  0;
     maxValue =  parseInt($(this).attr('max'));
     valueCurrent = parseInt($(this).val());
 
