@@ -49,8 +49,8 @@ def createTabels():
         Vermieter INT,
         Auto INT,
         Gesamtpreis INT,
-        MietStartdatum DATE,
-        MietEnddatum DATE,
+        Startdatum DATE,
+        Enddatum DATE,
         Ueberweisungsdatum DATE,
         FOREIGN KEY(Mieter) REFERENCES User(UserID),
         FOREIGN KEY(Vermieter) REFERENCES User(UserID),
@@ -67,8 +67,7 @@ def createTabels():
         )
     ''')
 
-    #.execute('''DROP TABLE Mietauftrag''')
+    #cur.execute('''DROP TABLE Autos''')
     #cur.execute('''DELETE FROM Autos WHERE AutoID=456''')
-    cur.execute("UPDATE User SET Passwort='MeinHund' WHERE UserID=2")
     con.commit()
     cur.close()
