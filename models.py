@@ -37,9 +37,7 @@ def createTabels():
         Hersteller TEXT, 
         Modell TEXT, 
         Fahrzeugtyp TEXT,
-        PreisProTag INT,
-        Startdatum DATE,
-        Enddatum DATE
+        PreisProTag INT
         )
     ''')
 
@@ -63,6 +61,15 @@ def createTabels():
         User INT,
         Auto INT,
         FOREIGN KEY(User) REFERENCES User(UserID),
+        FOREIGN KEY(Auto) REFERENCES Autos(AutoID)
+        )
+    ''')
+
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS Verfuegbar(
+        Auto INT,
+        Startdatum DATE,
+        Enddatum DATE,
         FOREIGN KEY(Auto) REFERENCES Autos(AutoID)
         )
     ''')

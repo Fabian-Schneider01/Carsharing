@@ -127,7 +127,7 @@ def profile():
             # for displaying all the car the user has added
                 cur = con.cursor()
                 userID = session["UserID"]
-                cars = cur.execute("SELECT AutoID, Hersteller, Modell, Fahrzeugtyp, PreisProTag, Startdatum, Enddatum FROM User LEFT JOIN Autobesitzer ON User.UserID = Autobesitzer.User LEFT JOIN Autos ON Autobesitzer.Auto = Autos.AutoID WHERE UserID=(?)", [(userID)]).fetchall()
+                cars = cur.execute("SELECT AutoID, Hersteller, Modell, Fahrzeugtyp, PreisProTag FROM User LEFT JOIN Autobesitzer ON User.UserID = Autobesitzer.User LEFT JOIN Autos ON Autobesitzer.Auto = Autos.AutoID WHERE UserID=(?)", [(userID)]).fetchall()
                 """for i in range(len(cars)): #later to show if a car was rented
                     for o in range(len(cur.execute("SELECT Auto FROM Mietauftrag").fetchall())):
                         if cars[i][0] == cur.execute("SELECT Auto FROM Mietauftrag").fetchall()[o][0]:
@@ -177,14 +177,10 @@ def profile():
         print(hersteller)
         preis = request.form['preis']
         print(preis)
-        startdate = request.form['startdate']
-        print(startdate)
-        enddate = request.form['enddate']
-        print(enddate)
         current_user_id = session['UserID']
         with sqlite3.connect("database.sqlite") as con:
             cur = con.cursor()
-            cur.execute("INSERT INTO Autos(Hersteller, Modell, Fahrzeugtyp, PreisProTag, Startdatum, Enddatum) VALUES((?), (?), (?), (?), (?), (?))", [(hersteller), (modell), (fahrzeugtyp), (preis), (startdate), (enddate)])
+            cur.execute("INSERT INTO Autos(Hersteller, Modell, Fahrzeugtyp, PreisProTag) VALUES((?), (?), (?), (?))", [(hersteller), (modell), (fahrzeugtyp), (preis)])
             car_id = cur.execute("SELECT AutoID FROM Autos WHERE AutoID=(SELECT max(AutoID) FROM Autos)").fetchone()[0]
             print(car_id)
             cur.execute("INSERT INTO Autobesitzer VALUES((?), (?))", [current_user_id, car_id])
@@ -201,17 +197,28 @@ def edit_car(id):
     fahrzeugtyp = request.form['fahrzeugtyp']
     hersteller = request.form['hersteller']
     preis = request.form['preis']
-    startdate = request.form['startdate']
-    enddate = request.form['enddate']
 
     with sqlite3.connect("database.sqlite") as con:
             cur = con.cursor()
-            cur.execute("UPDATE Autos SET Hersteller=(?), Modell=(?), Fahrzeugtyp=(?), PreisProTag=(?), Startdatum=(?), Enddatum=(?) WHERE AutoID=(?)", [(hersteller), (modell), (fahrzeugtyp), (preis), (startdate), (enddate), (id)])
+            cur.execute("UPDATE Autos SET Hersteller=(?), Modell=(?), Fahrzeugtyp=(?), PreisProTag=(?) WHERE AutoID=(?)", [(hersteller), (modell), (fahrzeugtyp), (preis), (id)])
     con.commit()
     # TODO
     # fix the default dates and price in profile.html
     return redirect(url_for("profile"))
 
+@app.route("/add-timeframe/<id>", methods=['GET', 'POST'])
+def add_timeframe(id):
+    print(id)
+    startdate = request.form['startdate']
+    enddate = request.form['enddate']
+
+    with sqlite3.connect("database.sqlite") as con:
+            cur = con.cursor()
+            cur.execute("INSERT INTO Verfuegbar VALUES((?), (?), (?)", [(id), (startdate), (enddate)])
+    con.commit()
+    return redirect(url_for("profile"))
+
+# TODO change startdate enddate references to its own table
 @app.route("/findCar", methods=['GET', 'POST'])
 def findCar():
     matchedUserCars = None
