@@ -217,7 +217,7 @@ def add_timeframe(id):
 
     with sqlite3.connect("database.sqlite") as con:
             cur = con.cursor()
-            cur.execute("INSERT INTO Verfuegbar VALUES((?), (?), (?)", [(id), (startdate), (enddate)])
+            cur.execute("INSERT INTO Verfuegbar(Auto, Startdatum, Enddatum) VALUES((?), (?), (?))", [(id), (startdate), (enddate)])               
     con.commit()
     return redirect(url_for("profile"))
 

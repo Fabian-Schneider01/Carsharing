@@ -155,12 +155,13 @@
                     <div class="modal-footer">
                         <input type="submit" value="Ändern" name="formButton" class="btn btn-primary" data-bs-dismiss="modal">
                     </div>
+                    </form>
                 </div>
                 </div>
             </div> 
                     
             <!-- Edit Timeframes modal -->
-            <div class="modal" id="timeframes{{ car[0] }}">
+            <div class="modal" id="timeframes{{car[0]}}">
                 <div class="modal-dialog">
                 <div class="modal-content">                 
                     <div class="modal-header">
@@ -172,7 +173,7 @@
                     <!-- auch ein äquivalentes popup eine ebene höher für view renters and when they rented, in cars[8] liste übergeben mit zeiträume + mieter TODO -->
 
                     <form method="POST" action="/add-timeframe/{{car[0]}}">
-
+                    
                     <!-- Modal body -->
                     <div class="modal-body">                            
                         <div class="form-group mt-2">
