@@ -208,9 +208,12 @@ def edit_car(id):
 
 @app.route("/add-timeframe/<id>", methods=['GET', 'POST'])
 def add_timeframe(id):
+    print("arrived")
     print(id)
     startdate = request.form['startdate']
+    print(startdate)
     enddate = request.form['enddate']
+    print(enddate)
 
     with sqlite3.connect("database.sqlite") as con:
             cur = con.cursor()
