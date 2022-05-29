@@ -233,7 +233,7 @@ def findCar():
             # for displaying all the car the user has added
                 cur = con.cursor()
                 userID = session["UserID"]
-                cars = cur.execute("SELECT AutoID, Hersteller, Modell, Fahrzeugtyp, PreisProTag, Startdatum, Enddatum FROM Autos").fetchall()
+                cars = cur.execute("SELECT AutoID, Hersteller, Modell, Fahrzeugtyp, PreisProTag FROM Autos").fetchall()
         if request.method == "POST":
             #change name to rentCar-i => i = AutoID 
             with sqlite3.connect("database.sqlite") as con:

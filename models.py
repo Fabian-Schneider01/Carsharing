@@ -74,7 +74,7 @@ def createTabels():
         )
     ''')
 
-    cur.execute('''DROP TABLE Mietauftrag''')
+    #cur.execute('''DROP TABLE Mietauftrag''')
     #cur.execute('''DELETE FROM Autos WHERE AutoID=456''')
     cur.execute("UPDATE User SET Passwort='MeinHund' WHERE UserID=2")
     con.commit()
