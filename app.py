@@ -325,15 +325,16 @@ def findCar():
                                             session["matchedCars"] = matchedUserCars
                                             return render_template("findCar.html", cars = cars)
                 else:
-                    for i in range(len(session["matchedCars"])):
-                        print(session["matchedCars"][i][0])
-                        if request.form.get(str(session["matchedCars"][i][0])) == "mieten":
+                    matchedCars = cur.execute("SELECT AutoID, Hersteller, Modell, Fahrzeugtyp, PreisProTag from Autos LEFT JOIN Autobesitzer").fetchall()[0]  # where autobesitzer ungleich session user. TODO Autobesitzer tabelle killen
+                    for i in range(len(matchedCars)):
+                        print(matchedCars[i])
+                        if request.form.get(str(session["matchedCars"][i][0])) == "mieten": # FIXEN!
                             print("selected car")
-                            lessor = cur.execute("SELECT User FROM Autobesitzer WHERE Auto = (?)", [(session["matchedCars"][i][0])]).fetchone()[0] #change 30 to variable
-                            startDate = cur.execute("SELECT Startdatum FROM Autos WHERE AutoID = (?)", [(session["matchedCars"][i][0])]).fetchone()[0] #change 30 to variable
-                            endDate = cur.execute("SELECT Enddatum FROM Autos WHERE AutoID = (?)", [(session["matchedCars"][i][0])]).fetchone()[0] #change 30 to variable
-                            pricePerDay = cur.execute("SELECT PreisProTag FROM Autos WHERE AutoID = (?)", [(session["matchedCars"][i][0])]).fetchone()[0] #change 30 to variable
-                            ammountDays = cur.execute("SELECT JULIANDAY(Enddatum) - JULIANDAY(Startdatum) AS difference FROM Autos WHERE AutoID = (?)", [(session["matchedCars"][i][0])]).fetchone()[0]
+                            lessor = cur.execute("SELECT User FROM Autobesitzer WHERE Auto = (?)", [(matchedCars[i][0])]).fetchone()[0] #change 30 to variable
+                            startDate = cur.execute("SELECT Startdatum FROM Autos WHERE AutoID = (?)", [(matchedCars[i][0])]).fetchone()[0] #change 30 to variable
+                            endDate = cur.execute("SELECT Enddatum FROM Autos WHERE AutoID = (?)", [(matchedCars[i][0])]).fetchone()[0] #change 30 to variable
+                            pricePerDay = cur.execute("SELECT PreisProTag FROM Autos WHERE AutoID = (?)", [(matchedCars[i][0])]).fetchone()[0] #change 30 to variable
+                            ammountDays = cur.execute("SELECT JULIANDAY(Enddatum) - JULIANDAY(Startdatum) AS difference FROM Autos WHERE AutoID = (?)", [(matchedCars[i][0])]).fetchone()[0]
                             endPrice = ammountDays * pricePerDay
                             print(session["UserID"])
                             print(lessor)
@@ -342,8 +343,6 @@ def findCar():
                             print(endDate)
 
                             ### check if dates are available
-                            
-
                             date = startdate
                             checkflag = 0
                             while date <= enddate:
