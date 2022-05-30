@@ -1,7 +1,7 @@
 from flask import *
 import sqlite3
 from models import createTabels
-from datetime import datetime
+import datetime
 
 app = Flask(__name__)
 app.secret_key = "4khJ7Ggljy"
@@ -210,14 +210,62 @@ def edit_car(id):
 def add_timeframe(id):
     print("arrived")
     print(id)
-    startdate = request.form['startdate']
-    print(startdate)
-    enddate = request.form['enddate']
-    print(enddate)
+    start = request.form['startdate']
+    print(start)
+    end = request.form['enddate']
+    print(end)
+    # TODO: Einträge in der Vergangenheit löschen/ignorieren, auch beim Suchen und Mieten
+    with sqlite3.connect("database.sqlite") as con:
+        cur = con.cursor()
+        cur.execute("INSERT INTO Verfuegbar VALUES(?, ?)", [id, "2022-06-01"])
+        # find all the dates where the car is available already
+        available = cur.execute("SELECT Datum FROM Verfuegbar WHERE Auto=(?)", [(id)]).fetchall()[0]
+        # find all the timeframes where the car is rented already  
+        rented = cur.execute("SELECT Startdatum, Enddatum FROM Mietauftrag WHERE Auto=(?)", [(id)]).fetchall()
+    con.commit() 
+    print(available)  
+    print(rented)
 
+    startdate = datetime.date.fromisoformat(start)
+    print("Startdate")
+    print(startdate)
+    enddate = datetime.date.fromisoformat(end)    
+
+    available_dates = [datetime.date.fromisoformat(i) for i in available]
+    print(available_dates)
+    rented_dates = [(datetime.date.fromisoformat(i[0]), datetime.date.fromisoformat(i[1])) for i in rented]
+    print(rented_dates)
+
+    # check for overlap with rented times
+    not_rented_dates = []
+    date = startdate
+    while date <= enddate:
+        flag = 0    # hypothesis: not overlapping with a timeframe
+        for timeframe in rented_dates:
+            if not(date>timeframe[1] or date<timeframe[0]): # overlap
+                flag = 1
+                break
+        if flag == 0:
+            not_rented_dates.append(date)
+        date = date + datetime.timedelta(days=1)
+        print("new date")
+        print(date)
+
+    print("not rented dates")
+    print(not_rented_dates)
+
+    # check for overlap with dates already marked as available
+    dates_to_add = []
+    for date in not_rented_dates:
+        for available in available_dates:
+            if not(date==available): # no overlap
+                dates_to_add.append(date)          
+
+    # only add the dates that are still available and not marked as available yet
     with sqlite3.connect("database.sqlite") as con:
             cur = con.cursor()
-            cur.execute("INSERT INTO Verfuegbar(Auto, Startdatum, Enddatum) VALUES((?), (?), (?))", [(id), (startdate), (enddate)])               
+            for date in dates_to_add:
+                cur.execute("INSERT INTO Verfuegbar(Auto, Datum) VALUES((?), (?))", [(id), (date)])               
     con.commit()
     return redirect(url_for("profile"))
 
@@ -233,7 +281,7 @@ def findCar():
             # for displaying all the car the user has added
                 cur = con.cursor()
                 userID = session["UserID"]
-                cars = cur.execute("SELECT AutoID, Hersteller, Modell, Fahrzeugtyp, PreisProTag, Startdatum, Enddatum FROM Autos").fetchall()
+                cars = cur.execute("SELECT AutoID, Hersteller, Modell, Fahrzeugtyp, PreisProTag FROM Autos").fetchall()
         if request.method == "POST":
             #change name to rentCar-i => i = AutoID 
             with sqlite3.connect("database.sqlite") as con:
