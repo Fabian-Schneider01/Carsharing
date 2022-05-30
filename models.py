@@ -6,6 +6,8 @@ def createTabels():
 
     cur = con.cursor()
 
+    cur.execute('''DROP TABLE Verfuegbar''')
+
     cur.execute('''
         CREATE TABLE IF NOT EXISTS Adresse(
         AdressID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
@@ -44,14 +46,11 @@ def createTabels():
     cur.execute('''
         CREATE TABLE IF NOT EXISTS Mietauftrag(
         Mieter INT,
-        Vermieter INT,
         Auto INT,
         Gesamtpreis INT,
         Startdatum DATE,
         Enddatum DATE,
-        Ueberweisungsdatum DATE,
         FOREIGN KEY(Mieter) REFERENCES User(UserID),
-        FOREIGN KEY(Vermieter) REFERENCES User(UserID),
         FOREIGN KEY(Auto) REFERENCES Autos(AutoID)
         )
     ''')
@@ -68,14 +67,13 @@ def createTabels():
     cur.execute('''
         CREATE TABLE IF NOT EXISTS Verfuegbar(
         Auto INT,
-        Startdatum DATE,
-        Enddatum DATE,
+        Datum DATE,
         FOREIGN KEY(Auto) REFERENCES Autos(AutoID)
         )
     ''')
 
     #cur.execute('''DROP TABLE Mietauftrag''')
     #cur.execute('''DELETE FROM Autos WHERE AutoID=456''')
-    cur.execute("UPDATE User SET Passwort='MeinHund' WHERE UserID=2")
+    #cur.execute("UPDATE User SET Passwort='MeinHund' WHERE UserID=2")
     con.commit()
     cur.close()
