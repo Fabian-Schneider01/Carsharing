@@ -309,13 +309,14 @@ def findCar():
                         if matchedUserCars != "":
                             for i in range(len(matchedUserCars)):
                                 if filterClass in matchedUserCars[i][3]:
-                                    return render_template("findCar.html", cars = matchedUserCars)
+                                    if matchedUserCars != []:
+                                        return render_template("findCar.html", cars = matchedUserCars)
                                     """if filterStartdate >= matchedUserCars[i][5] and filterStartdate <= matchedUserCars[i][6] and filterEnddate >= matchedUserCars[i][5] and filterEnddate <= matchedUserCars[i][6]:
                                         totalPrice = (datetime.strptime(filterEnddate, "%Y-%m-%d") - datetime.strptime(filterStartdate, "%Y-%m-%d")).days * matchedUserCars[i][4]
                                         if totalPrice <= int(filterMaxPrice):
                                             cars = matchedUserCars
                                             session["matchedCars"] = matchedUserCars
-                                            return render_template("findCar.html", cars = cars)   """ 
+                                            return render_template("findCar.html", cars = cars) """ 
                         
                                     
                     print("Filtered Search: ", filterPlace, " ", filterStartdate, " ", filterEnddate, " ", filterClass, " ", filterMaxPrice)
@@ -408,7 +409,7 @@ def findCar():
         #with sqlite3.connect("database.sqlite") as con:
         #    cur.execute("INSERT INTO Autobesitzer VALUES((?), (?))", [current_user_id, car_id])
         #con.commit()
-    return render_template("findCar.html", matchedUserCars = matchedUserCars)
+    return render_template("findCar.html", cars = cars)
 
 @app.route("/rent-car/<id>", methods=['GET', 'POST'])
 def rent_car(id):
