@@ -266,10 +266,9 @@ def findCar():
                                                 dbEndDate = cur.execute("SELECT Enddatum FROM Verfuegbar WHERE Auto = (?)", [(cars[i][1])]).fetchall()
                                                 if dbStartDate[i][0] <= filterStartdate and dbEndDate[i][0] >= filterEnddate:
                                                     print("car found")
-                                                    print(cars)
+                                                    session["matchedCars"] = cars
                                                 else:
                                                     print("no car found")
-                                                    cars = []
                                     else:
                                         filterPeriod = (datetime.strptime(request.form["enddate"], "%Y-%m-%d") - datetime.strptime(request.form["startdate"], "%Y-%m-%d")).days
                                         cars = cur.execute("SELECT UserID, AutoID FROM User LEFT JOIN Adresse ON Adresse.AdressID = User.Adresse LEFT JOIN Autobesitzer ON Autobesitzer.User = User.UserID LEFT JOIN Autos ON AutoID = Autobesitzer.Auto LEFT JOIN Verfuegbar ON Verfuegbar.Auto = Autobesitzer.Auto WHERE Autobesitzer.User = User.UserID AND Ort = (?) AND Fahrzeugtyp = (?) AND UserID != (?)", [(filterPlace), (filterClass), (session["UserID"])]).fetchall()
@@ -279,10 +278,10 @@ def findCar():
                                                 dbEndDate = cur.execute("SELECT Enddatum FROM Verfuegbar WHERE Auto = (?)", [(cars[i][1])]).fetchall()
                                                 if dbStartDate[i][0] <= filterStartdate and dbEndDate[i][0] >= filterEnddate:
                                                     print("car found")
-                                                    print(cars)
+                                                    session["matchedCars"] = cars
                                                 else:
                                                     print("no car found")
-                                                    cars = []
+                                                    
                                         print("end")
                                 else:
                                     if filterMaxPrice != "":
@@ -294,10 +293,10 @@ def findCar():
                                                 dbEndDate = cur.execute("SELECT Enddatum FROM Verfuegbar WHERE Auto = (?)", [(cars[i][1])]).fetchall()
                                                 if dbStartDate[i][0] <= filterStartdate and dbEndDate[i][0] >= filterEnddate:
                                                     print("car found")
-                                                    print(cars)
+                                                    session["matchedCars"] = cars
                                                 else:
                                                     print("no car found")
-                                                    cars = []
+                                                    
                                     else:
                                         filterPeriod = (datetime.strptime(request.form["enddate"], "%Y-%m-%d") - datetime.strptime(request.form["startdate"], "%Y-%m-%d")).days
                                         cars = cur.execute("SELECT UserID, AutoID FROM User LEFT JOIN Adresse ON Adresse.AdressID = User.Adresse LEFT JOIN Autobesitzer ON Autobesitzer.User = User.UserID LEFT JOIN Autos ON AutoID = Autobesitzer.Auto LEFT JOIN Verfuegbar ON Verfuegbar.Auto = Autobesitzer.Auto WHERE Autobesitzer.User = User.UserID AND Ort = (?) AND Fahrzeugtyp = (?) AND (?) * PreisProTag <= (?) AND UserID != (?)", [(filterPlace),(filterPeriod), (session["UserID"])]).fetchall()
@@ -307,10 +306,10 @@ def findCar():
                                                 dbEndDate = cur.execute("SELECT Enddatum FROM Verfuegbar WHERE Auto = (?)", [(cars[i][1])]).fetchall()
                                                 if dbStartDate[i][0] <= filterStartdate and dbEndDate[i][0] >= filterEnddate:
                                                     print("car found")
-                                                    print(cars)
+                                                    session["matchedCars"] = cars
                                                 else:
                                                     print("no car found")
-                                                    cars = []
+                                                    
                             else:
                                 if filterClass != "":
                                     if filterMaxPrice != "":
@@ -322,10 +321,9 @@ def findCar():
                                                 dbEndDate = cur.execute("SELECT Enddatum FROM Verfuegbar WHERE Auto = (?)", [(cars[i][1])]).fetchall()
                                                 if dbStartDate[i][0] <= filterStartdate and dbEndDate[i][0] >= filterEnddate:
                                                     print("car found")
-                                                    print(cars)
+                                                    session["matchedCars"] = cars
                                                 else:
                                                     print("no car found")
-                                                    cars = []
                                     else:
                                         filterPeriod = (datetime.strptime(request.form["enddate"], "%Y-%m-%d") - datetime.strptime(request.form["startdate"], "%Y-%m-%d")).days
                                         cars = cur.execute("SELECT UserID, AutoID FROM User LEFT JOIN Adresse ON Adresse.AdressID = User.Adresse LEFT JOIN Autobesitzer ON Autobesitzer.User = User.UserID LEFT JOIN Autos ON AutoID = Autobesitzer.Auto LEFT JOIN Verfuegbar ON Verfuegbar.Auto = Autobesitzer.Auto WHERE Autobesitzer.User = User.UserID AND Ort = (?)  AND UserID != (?)", [(filterPlace), (session["UserID"])]).fetchall()
@@ -335,10 +333,9 @@ def findCar():
                                                 dbEndDate = cur.execute("SELECT Enddatum FROM Verfuegbar WHERE Auto = (?)", [(cars[i][1])]).fetchall()
                                                 if dbStartDate[i][0] <= filterStartdate and dbEndDate[i][0] >= filterEnddate:
                                                     print("car found")
-                                                    print(cars)
+                                                    session["matchedCars"] = cars
                                                 else:
                                                     print("no car found")
-                                                    cars = []
                                         else: 
                                             filterPeriod = (datetime.strptime(request.form["enddate"], "%Y-%m-%d") - datetime.strptime(request.form["startdate"], "%Y-%m-%d")).days
                                             cars = cur.execute("SELECT UserID, AutoID FROM User LEFT JOIN Adresse ON Adresse.AdressID = User.Adresse LEFT JOIN Autobesitzer ON Autobesitzer.User = User.UserID LEFT JOIN Autos ON AutoID = Autobesitzer.Auto LEFT JOIN Verfuegbar ON Verfuegbar.Auto = Autobesitzer.Auto WHERE Autobesitzer.User = User.UserID AND Ort = (?) AND Fahrzeugtyp = (?) AND (?) * PreisProTag <= (?) AND UserID != (?)", [(filterPlace), (filterClass), (filterPeriod), (filterMaxPrice), (session["UserID"])]).fetchall()
@@ -348,10 +345,9 @@ def findCar():
                                                     dbEndDate = cur.execute("SELECT Enddatum FROM Verfuegbar WHERE Auto = (?)", [(cars[i][1])]).fetchall()
                                                     if dbStartDate[i][0] <= filterStartdate and dbEndDate[i][0] >= filterEnddate:
                                                         print("car found")
-                                                        print(cars)
+                                                        session["matchedCars"] = cars
                                                     else:
                                                         print("no car found")
-                                                        cars = []
                                     
                     else: 
                         if filterStartdate != "":
@@ -366,10 +362,9 @@ def findCar():
                                                 dbEndDate = cur.execute("SELECT Enddatum FROM Verfuegbar WHERE Auto = (?)", [(cars[i][1])]).fetchall()
                                                 if dbStartDate[i][0] <= filterStartdate and dbEndDate[i][0] >= filterEnddate:
                                                     print("car found")
-                                                    print(cars)
+                                                    session["matchedCars"] = cars
                                                 else:
                                                     print("no car found")
-                                                    cars = []
                                     else:
                                         filterPeriod = (datetime.strptime(request.form["enddate"], "%Y-%m-%d") - datetime.strptime(request.form["startdate"], "%Y-%m-%d")).days
                                         cars = cur.execute("SELECT UserID, AutoID FROM User LEFT JOIN Adresse ON Adresse.AdressID = User.Adresse LEFT JOIN Autobesitzer ON Autobesitzer.User = User.UserID LEFT JOIN Autos ON AutoID = Autobesitzer.Auto LEFT JOIN Verfuegbar ON Verfuegbar.Auto = Autobesitzer.Auto WHERE Autobesitzer.User = User.UserID AND Ort = (?) AND Fahrzeugtyp = (?) AND UserID != (?)", [(filterPlace), (filterClass), (session["UserID"])]).fetchall()
@@ -379,10 +374,9 @@ def findCar():
                                                 dbEndDate = cur.execute("SELECT Enddatum FROM Verfuegbar WHERE Auto = (?)", [(cars[i][1])]).fetchall()
                                                 if dbStartDate[i][0] <= filterStartdate and dbEndDate[i][0] >= filterEnddate:
                                                     print("car found")
-                                                    print(cars)
+                                                    session["matchedCars"] = cars
                                                 else:
                                                     print("no car found")
-                                                    cars = []
                                         print("end")
                                 else:
                                     if filterMaxPrice != "":
@@ -394,10 +388,9 @@ def findCar():
                                                 dbEndDate = cur.execute("SELECT Enddatum FROM Verfuegbar WHERE Auto = (?)", [(cars[i][1])]).fetchall()
                                                 if dbStartDate[i][0] <= filterStartdate and dbEndDate[i][0] >= filterEnddate:
                                                     print("car found")
-                                                    print(cars)
+                                                    session["matchedCars"] = cars
                                                 else:
                                                     print("no car found")
-                                                    cars = []
                                     else:
                                         filterPeriod = (datetime.strptime(request.form["enddate"], "%Y-%m-%d") - datetime.strptime(request.form["startdate"], "%Y-%m-%d")).days
                                         cars = cur.execute("SELECT UserID, AutoID FROM User LEFT JOIN Adresse ON Adresse.AdressID = User.Adresse LEFT JOIN Autobesitzer ON Autobesitzer.User = User.UserID LEFT JOIN Autos ON AutoID = Autobesitzer.Auto LEFT JOIN Verfuegbar ON Verfuegbar.Auto = Autobesitzer.Auto WHERE Autobesitzer.User = User.UserID AND Ort = (?) AND Fahrzeugtyp = (?) AND (?) * PreisProTag <= (?) AND UserID != (?)", [(filterPlace),(filterPeriod), (session["UserID"])]).fetchall()
@@ -407,10 +400,9 @@ def findCar():
                                                 dbEndDate = cur.execute("SELECT Enddatum FROM Verfuegbar WHERE Auto = (?)", [(cars[i][1])]).fetchall()
                                                 if dbStartDate[i][0] <= filterStartdate and dbEndDate[i][0] >= filterEnddate:
                                                     print("car found")
-                                                    print(cars)
+                                                    session["matchedCars"] = cars
                                                 else:
                                                     print("no car found")
-                                                    cars = []
                             else:
                                 if filterClass != "":
                                     if filterMaxPrice != "":
@@ -422,10 +414,9 @@ def findCar():
                                                 dbEndDate = cur.execute("SELECT Enddatum FROM Verfuegbar WHERE Auto = (?)", [(cars[i][1])]).fetchall()
                                                 if dbStartDate[i][0] <= filterStartdate and dbEndDate[i][0] >= filterEnddate:
                                                     print("car found")
-                                                    print(cars)
+                                                    session["matchedCars"] = cars
                                                 else:
                                                     print("no car found")
-                                                    cars = []
                                     else:
                                         filterPeriod = (datetime.strptime(request.form["enddate"], "%Y-%m-%d") - datetime.strptime(request.form["startdate"], "%Y-%m-%d")).days
                                         cars = cur.execute("SELECT UserID, AutoID FROM User LEFT JOIN Adresse ON Adresse.AdressID = User.Adresse LEFT JOIN Autobesitzer ON Autobesitzer.User = User.UserID LEFT JOIN Autos ON AutoID = Autobesitzer.Auto LEFT JOIN Verfuegbar ON Verfuegbar.Auto = Autobesitzer.Auto WHERE Autobesitzer.User = User.UserID AND Ort = (?)  AND UserID != (?)", [(filterPlace), (session["UserID"])]).fetchall()
@@ -435,10 +426,9 @@ def findCar():
                                                 dbEndDate = cur.execute("SELECT Enddatum FROM Verfuegbar WHERE Auto = (?)", [(cars[i][1])]).fetchall()
                                                 if dbStartDate[i][0] <= filterStartdate and dbEndDate[i][0] >= filterEnddate:
                                                     print("car found")
-                                                    print(cars)
+                                                    session["matchedCars"] = cars
                                                 else:
                                                     print("no car found")
-                                                    cars = []
                                         else: 
                                             filterPeriod = (datetime.strptime(request.form["enddate"], "%Y-%m-%d") - datetime.strptime(request.form["startdate"], "%Y-%m-%d")).days
                                             cars = cur.execute("SELECT UserID, AutoID FROM User LEFT JOIN Adresse ON Adresse.AdressID = User.Adresse LEFT JOIN Autobesitzer ON Autobesitzer.User = User.UserID LEFT JOIN Autos ON AutoID = Autobesitzer.Auto LEFT JOIN Verfuegbar ON Verfuegbar.Auto = Autobesitzer.Auto WHERE Autobesitzer.User = User.UserID AND Ort = (?) AND Fahrzeugtyp = (?) AND (?) * PreisProTag <= (?) AND UserID != (?)", [(filterPlace), (filterClass), (filterPeriod), (filterMaxPrice), (session["UserID"])]).fetchall()
@@ -448,10 +438,9 @@ def findCar():
                                                     dbEndDate = cur.execute("SELECT Enddatum FROM Verfuegbar WHERE Auto = (?)", [(cars[i][1])]).fetchall()
                                                     if dbStartDate[i][0] <= filterStartdate and dbEndDate[i][0] >= filterEnddate:
                                                         print("car found")
-                                                        print(cars)
+                                                        session["matchedCars"] = cars
                                                     else:
                                                         print("no car found")
-                                                        cars = []
                         else:
                             if filterStartdate != "":
                                 if filterEnddate != "":
@@ -465,10 +454,10 @@ def findCar():
                                                     dbEndDate = cur.execute("SELECT Enddatum FROM Verfuegbar WHERE Auto = (?)", [(cars[i][1])]).fetchall()
                                                     if dbStartDate[i][0] <= filterStartdate and dbEndDate[i][0] >= filterEnddate:
                                                         print("car found")
-                                                        print(cars)
+                                                        session["matchedCars"] = cars
                                                     else:
                                                         print("no car found")
-                                                        cars = []
+                                                      
                                         else:
                                             filterPeriod = (datetime.strptime(request.form["enddate"], "%Y-%m-%d") - datetime.strptime(request.form["startdate"], "%Y-%m-%d")).days
                                             cars = cur.execute("SELECT UserID, AutoID FROM User LEFT JOIN Adresse ON Adresse.AdressID = User.Adresse LEFT JOIN Autobesitzer ON Autobesitzer.User = User.UserID LEFT JOIN Autos ON AutoID = Autobesitzer.Auto LEFT JOIN Verfuegbar ON Verfuegbar.Auto = Autobesitzer.Auto WHERE Autobesitzer.User = User.UserID AND Ort = (?) AND Fahrzeugtyp = (?) AND UserID != (?)", [(filterPlace), (filterClass), (session["UserID"])]).fetchall()
@@ -478,10 +467,10 @@ def findCar():
                                                     dbEndDate = cur.execute("SELECT Enddatum FROM Verfuegbar WHERE Auto = (?)", [(cars[i][1])]).fetchall()
                                                     if dbStartDate[i][0] <= filterStartdate and dbEndDate[i][0] >= filterEnddate:
                                                         print("car found")
-                                                        print(cars)
+                                                        session["matchedCars"] = cars
                                                     else:
                                                         print("no car found")
-                                                        cars = []
+                                                       
                                             print("end")
                                     else:
                                         if filterMaxPrice != "":
@@ -493,10 +482,10 @@ def findCar():
                                                     dbEndDate = cur.execute("SELECT Enddatum FROM Verfuegbar WHERE Auto = (?)", [(cars[i][1])]).fetchall()
                                                     if dbStartDate[i][0] <= filterStartdate and dbEndDate[i][0] >= filterEnddate:
                                                         print("car found")
-                                                        print(cars)
+                                                        session["matchedCars"] = cars
                                                     else:
                                                         print("no car found")
-                                                        cars = []
+                                                       
                                         else:
                                             filterPeriod = (datetime.strptime(request.form["enddate"], "%Y-%m-%d") - datetime.strptime(request.form["startdate"], "%Y-%m-%d")).days
                                             cars = cur.execute("SELECT UserID, AutoID FROM User LEFT JOIN Adresse ON Adresse.AdressID = User.Adresse LEFT JOIN Autobesitzer ON Autobesitzer.User = User.UserID LEFT JOIN Autos ON AutoID = Autobesitzer.Auto LEFT JOIN Verfuegbar ON Verfuegbar.Auto = Autobesitzer.Auto WHERE Autobesitzer.User = User.UserID AND Ort = (?) AND Fahrzeugtyp = (?) AND (?) * PreisProTag <= (?) AND UserID != (?)", [(filterPlace),(filterPeriod), (session["UserID"])]).fetchall()
@@ -506,10 +495,10 @@ def findCar():
                                                     dbEndDate = cur.execute("SELECT Enddatum FROM Verfuegbar WHERE Auto = (?)", [(cars[i][1])]).fetchall()
                                                     if dbStartDate[i][0] <= filterStartdate and dbEndDate[i][0] >= filterEnddate:
                                                         print("car found")
-                                                        print(cars)
+                                                        session["matchedCars"] = cars
                                                     else:
                                                         print("no car found")
-                                                        cars = []
+                                                        
                                 else:
                                     if filterClass != "":
                                         if filterMaxPrice != "":
@@ -521,10 +510,9 @@ def findCar():
                                                     dbEndDate = cur.execute("SELECT Enddatum FROM Verfuegbar WHERE Auto = (?)", [(cars[i][1])]).fetchall()
                                                     if dbStartDate[i][0] <= filterStartdate and dbEndDate[i][0] >= filterEnddate:
                                                         print("car found")
-                                                        print(cars)
+                                                        session["matchedCars"] = cars
                                                     else:
                                                         print("no car found")
-                                                        cars = []
                                         else:
                                             filterPeriod = (datetime.strptime(request.form["enddate"], "%Y-%m-%d") - datetime.strptime(request.form["startdate"], "%Y-%m-%d")).days
                                             cars = cur.execute("SELECT UserID, AutoID FROM User LEFT JOIN Adresse ON Adresse.AdressID = User.Adresse LEFT JOIN Autobesitzer ON Autobesitzer.User = User.UserID LEFT JOIN Autos ON AutoID = Autobesitzer.Auto LEFT JOIN Verfuegbar ON Verfuegbar.Auto = Autobesitzer.Auto WHERE Autobesitzer.User = User.UserID AND Ort = (?)  AND UserID != (?)", [(filterPlace), (session["UserID"])]).fetchall()
@@ -534,10 +522,9 @@ def findCar():
                                                     dbEndDate = cur.execute("SELECT Enddatum FROM Verfuegbar WHERE Auto = (?)", [(cars[i][1])]).fetchall()
                                                     if dbStartDate[i][0] <= filterStartdate and dbEndDate[i][0] >= filterEnddate:
                                                         print("car found")
-                                                        print(cars)
+                                                        session["matchedCars"] = cars
                                                     else:
                                                         print("no car found")
-                                                        cars = []
                                             else: 
                                                 filterPeriod = (datetime.strptime(request.form["enddate"], "%Y-%m-%d") - datetime.strptime(request.form["startdate"], "%Y-%m-%d")).days
                                                 cars = cur.execute("SELECT UserID, AutoID FROM User LEFT JOIN Adresse ON Adresse.AdressID = User.Adresse LEFT JOIN Autobesitzer ON Autobesitzer.User = User.UserID LEFT JOIN Autos ON AutoID = Autobesitzer.Auto LEFT JOIN Verfuegbar ON Verfuegbar.Auto = Autobesitzer.Auto WHERE Autobesitzer.User = User.UserID AND Ort = (?) AND Fahrzeugtyp = (?) AND (?) * PreisProTag <= (?) AND UserID != (?)", [(filterPlace), (filterClass), (filterPeriod), (filterMaxPrice), (session["UserID"])]).fetchall()
@@ -547,7 +534,7 @@ def findCar():
                                                         dbEndDate = cur.execute("SELECT Enddatum FROM Verfuegbar WHERE Auto = (?)", [(cars[i][1])]).fetchall()
                                                         if dbStartDate[i][0] <= filterStartdate and dbEndDate[i][0] >= filterEnddate:
                                                             print("car found")
-                                                            print(cars)
+                                                            session["matchedCars"] = cars
                                                         else:
                                                             print("no car found")           
                         
