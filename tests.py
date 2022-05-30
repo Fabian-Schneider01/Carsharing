@@ -71,6 +71,81 @@ class FlaskTestCase(unittest.TestCase):
             self.assertEqual(session.get("username") != "", True)
             self.assertEqual(response.data != b"", True)
 
+    #check timeframe functionality
+    def test_timeframes(self):
+        tester = app.test_client().post('/add-timeframe/1', 
+            data={
+                'startdate': '2022-06-01', 
+                'enddate': '2022-06-03'
+                })
+        self.assertTrue(tester)
+
+    #check edit functionality
+    def test_edit(self):
+        tester = app.test_client().post('/edit-car/1', 
+            data={
+                'modell': 'E-Klasse', 
+                'fahrzeugtyp': 'Limousine',
+                'hersteller': 'Mercedes-Benz',
+                'preis': '40'
+                })
+        self.assertTrue(tester)
+
+#check profile page redirect
+    def test_profile_redirect(self):
+        tester = app.test_client().post('/profile', 
+            data={
+
+                })
+        self.assertTrue(tester)
+
+#check profile page
+    def test_profile(self):
+        tester = app.test_client().post('/profile', 
+            data={
+                'UserID': 2, 
+                'formButton': 'Speichern',
+                'username': 'lena', 
+                'password': 'x',
+                'email': 'lena@gerken.de',
+                'Adresse': 1
+                })
+        self.assertTrue(tester)
+
+#check findCar page
+    def test_findcar(self):
+        tester = app.test_client().post('/findCar', 
+            data={
+                    'UserID': 2
+                })
+        self.assertTrue(tester)
+
+#check findCar page
+    def test_findcar_loggedin(self):    # not really working, not logged in
+        tester = app.test_client().post('/findCar', 
+            data={
+                    'place': 'Stuttgart',
+                    'filter': 'Suchen',
+                })
+        self.assertTrue(tester)
+
+#check rentcar functionality
+    def test_rentcar(self):
+        tester = app.test_client().post('/rent-car/1', 
+            data={
+                    'startdate': '2022-06-01',
+                    'enddate': '2022-06-03'
+                })
+        self.assertTrue(tester)
+
+#check logout functionality
+    def test_logout(self):
+        tester = app.test_client().post('/logout', 
+            data={
+
+                })
+        self.assertTrue(tester)
+
 if __name__ == '__main__':
     unittest.main()
 
