@@ -6,8 +6,6 @@ def createTabels():
 
     cur = con.cursor()
 
-    cur.execute('''DROP TABLE Verfuegbar''')
-
     cur.execute('''
         CREATE TABLE IF NOT EXISTS Adresse(
         AdressID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
