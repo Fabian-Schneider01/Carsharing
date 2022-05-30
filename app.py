@@ -284,6 +284,7 @@ filters the results shown when the filters have been selected
 def findCar():
     matchedUserCars = None
     cars = None
+    incompleteFilter = 0
     if session.get("UserID") is None:
         return redirect(url_for("login"))
     else:
@@ -376,7 +377,7 @@ def findCar():
         startdate = request.form['startdate']
         enddate = request.form['enddate']
         print(enddate)
-        
+
     return render_template("findCar.html", cars = cars, incompleteFilter = incompleteFilter)
 
 """
