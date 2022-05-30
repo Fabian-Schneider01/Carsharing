@@ -324,6 +324,20 @@ def findCar():
                             print(endPrice)
                             print(startDate)
                             print(endDate)
+
+                            ### check if dates are available
+                            """
+
+                            date = startdate
+                            while date <= enddate:
+                                available = cur.execute("SELECT Datum FROM Verfuegbar WHERE Auto=(?) AND Datum=(?)", [(id), (date)]).fetchall()[0]
+                                if available == None:
+                                    print("Der angeforderte Zeitraum ist nicht verfügbar!") 
+                                    # abbrechen, popup-message                            
+                                date = date + datetime.timedelta(days=1)
+
+                            """
+                            ###
                             
                             cur.execute("INSERT INTO Mietauftrag(Mieter, Vermieter, Auto, Gesamtpreis, Startdatum, Enddatum, Ueberweisungsdatum) VALUES(?, ?, ?, ?, ?, ?, ?)", ((session["UserID"]), (lessor), (session["matchedCars"][i][0]), (endPrice), (startDate), (endDate), (startDate)))
                             cur.execute("UPDATE User SET Guthaben= Guthaben - (?) WHERE UserID=(?)", [(endPrice), (session["UserID"])])
