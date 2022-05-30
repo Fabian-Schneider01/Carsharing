@@ -72,13 +72,30 @@
                             <label for="password">Passwort</label>
                             <input type="password" class="form-control mb-4 mt-2" id="password" name="password">
                         </div>
-
                         <div class="form-group">
                             <label for="passwordConfirm">Passwort bestätigen</label>
                             <input type="password" class="form-control mb-4 mt-2" id="passwordConfirm" name="passwordConfirm">
                         </div>
                         <button type="submit" class="btn btn-primary mb-4">User Registrieren</button>
                         <p><a href="{{ url_for("login") }}">Zurück zu Login</a></p>
+                        <!--Register Error-Handling-->
+                        {% if emptyField %}
+                        <div class="alert alert-danger" role="alert">
+                            all fields have to be filled out!
+                        </div>
+                        {% elif usernameExists == 1%}
+                        <div class="alert alert-danger" role="alert">
+                            username already exists!
+                        </div>
+                        {% elif emailExists == 1 %}
+                        <div class="alert alert-danger" role="alert">
+                            email already exists!
+                        </div>
+                        {% elif pwNotMatching == 1 %}
+                        <div class="alert alert-danger" role="alert">
+                            passwords aren't matching!
+                        </div>
+                        {% endif %}
                     </form>
                 </div>
             </div>
