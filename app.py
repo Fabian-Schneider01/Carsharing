@@ -282,6 +282,22 @@ def findCar():
                 cur = con.cursor()
                 userID = session["UserID"]
                 cars = cur.execute("SELECT AutoID, Hersteller, Modell, Fahrzeugtyp, PreisProTag FROM Autos").fetchall()
+                """
+                # rename cars in the above line to cardata
+                cardates = cur.execute("SELECT Datum FROM Verfuegbar WHERE Auto=(?)", [(id)]).fetchall()[0]
+                cardate = None
+                while cardate == None:
+                    for date in cardates:   # find first candidate in the future
+                        if (cardate - date.today) > 0:
+                            cardate = date
+                            break
+                if cardate == None:
+                    ##error! nicht verfügbar, dieses car nicht anzeigen
+                for date in cardates:
+                    if (date - date.today)>0 and (date-date.today)<(cardate-date.today)
+
+                cars = (cardata[0], cardata[1], cardata[2], cardata[3], cardata[4], cardate)    # TODO check if new Structure is used everywhere, so cars[5] is date and cars[6] nonexistent
+                """
         if request.method == "POST":
             #change name to rentCar-i => i = AutoID 
             with sqlite3.connect("database.sqlite") as con:
@@ -326,23 +342,31 @@ def findCar():
                             print(endDate)
 
                             ### check if dates are available
-                            """
+                            
 
                             date = startdate
+                            checkflag = 0
                             while date <= enddate:
                                 available = cur.execute("SELECT Datum FROM Verfuegbar WHERE Auto=(?) AND Datum=(?)", [(id), (date)]).fetchall()[0]
+                                print(available)
                                 if available == None:
-                                    print("Der angeforderte Zeitraum ist nicht verfügbar!") 
+                                    checkflag = 1
+                                    break
                                     # abbrechen, popup-message                            
                                 date = date + datetime.timedelta(days=1)
-
-                            """
+                            if checkflag == 0:
+                                cur.execute("INSERT INTO Mietauftrag(Mieter, Vermieter, Auto, Gesamtpreis, Startdatum, Enddatum, Ueberweisungsdatum) VALUES(?, ?, ?, ?, ?, ?, ?)", ((session["UserID"]), (lessor), (session["matchedCars"][i][0]), (endPrice), (startDate), (endDate), (startDate)))
+                                cur.execute("UPDATE User SET Guthaben= Guthaben - (?) WHERE UserID=(?)", [(endPrice), (session["UserID"])])
+                                cur.execute("UPDATE User SET Guthaben= Guthaben + (?) WHERE UserID=(?)", [(endPrice), (lessor)])
+                                con.commit()
+                            elif checkflag == 1:
+                                # fehlermeldung 
+                                print("Der angeforderte Zeitraum ist nicht verfügbar!") 
+                            elif checkflag == 2:
+                                # fehlermeldung zu wenig guthaben
+                                print("guthaben")
                             ###
                             
-                            cur.execute("INSERT INTO Mietauftrag(Mieter, Vermieter, Auto, Gesamtpreis, Startdatum, Enddatum, Ueberweisungsdatum) VALUES(?, ?, ?, ?, ?, ?, ?)", ((session["UserID"]), (lessor), (session["matchedCars"][i][0]), (endPrice), (startDate), (endDate), (startDate)))
-                            cur.execute("UPDATE User SET Guthaben= Guthaben - (?) WHERE UserID=(?)", [(endPrice), (session["UserID"])])
-                            cur.execute("UPDATE User SET Guthaben= Guthaben + (?) WHERE UserID=(?)", [(endPrice), (lessor)])
-                            con.commit()
                             break
                     
     """            
