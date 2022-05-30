@@ -125,7 +125,7 @@ def profile():
                 city = cur.execute("SELECT Ort from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
                 postalCode = cur.execute("SELECT Postleitzahl from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
                 credit = cur.execute("SELECT Guthaben from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
-                periods = cur.execute("SELECT Verfuegbar.Datum FROM Verfuegbar LEFT JOIN Autobesitzer ON Autobesitzer.Auto = Verfuegbar.Auto LEFT JOIN User ON UserID = Autobesitzer.User WHERE UserID = (?)", [(session["UserID"])]).fetchall()
+                #periods = cur.execute("SELECT Datum FROM Verfuegbar WHERE Auto=(?)", [()])
                 print(periods)
             con.commit()
             with sqlite3.connect("database.sqlite") as con:
@@ -133,13 +133,14 @@ def profile():
                 cur = con.cursor()
                 userID = session["UserID"]
                 cars = cur.execute("SELECT AutoID, Hersteller, Modell, Fahrzeugtyp, PreisProTag FROM User LEFT JOIN Autobesitzer ON User.UserID = Autobesitzer.User LEFT JOIN Autos ON Autobesitzer.Auto = Autos.AutoID WHERE UserID=(?)", [(userID)]).fetchall()
-                """for i in range(len(cars)): #later to show if a car was rented
-                    for o in range(len(cur.execute("SELECT Auto FROM Mietauftrag").fetchall())):
-                        if cars[i][0] == cur.execute("SELECT Auto FROM Mietauftrag").fetchall()[o][0]:
-                            rented.append(1)
-                        else:
-                            rented.append(0)
-                print(rented)"""
+                all_dates = []
+                all_rented = []
+                for car in cars:
+                    dates = cur.execute("SELECT Datum From Verfuegbar WHERE Auto=(?)", [(car[0])]).fetchall()
+                    all_dates.append(dates)
+                    rented = cur.execute("SELECT Startdatum, Enddatum FROM Mietauftrag WHERE Auto=(?)", [(car[0])]).fetchall()
+                    all_rented.append(rented)
+
     if request.method == "POST" and request.form['formButton'] == "Speichern":
         username = request.form["username"]
         email = request.form["email"]
@@ -192,7 +193,7 @@ def profile():
         con.commit()
         return redirect(url_for("profile"))
     print(cars[0][0])
-    return render_template("profile.html", email = email, username = username, firstName = firstName, lastName = lastName, street = street, houseNum = houseNum, city = city, postalCode = postalCode, credit = credit, password = password, cars = cars, rentCars = [], rented = rented, periods = periods[:5])
+    return render_template("profile.html", email = email, username = username, firstName = firstName, lastName = lastName, street = street, houseNum = houseNum, city = city, postalCode = postalCode, credit = credit, password = password, cars = cars, rentCars = [], rented = rented, periods = periods, all_dates = all_dates, all_rented = all_rented)
 
 @app.route("/edit-car/<id>", methods=['GET', 'POST'])
 def edit_car(id):
@@ -734,7 +735,7 @@ def rent_car(id):
         try:
             while date <= enddate:
                 #available = cur.execute("SELECT Datum FROM Verfuegbar WHERE Auto=(?) and Datum=(?)", [(id), (date)]).fetchone()
-                available = cur.execute("SELECT * FROM Verfuegbar").fetchall()[0]   # TUT NICHT
+                available = cur.execute("SELECT * FROM Verfuegbar").fetchall()   # TUT NICHT
                 print("all dates:")
                 print(available)
                 if available == None:

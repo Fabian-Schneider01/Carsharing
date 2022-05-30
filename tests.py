@@ -36,17 +36,6 @@ class FlaskTestCase(unittest.TestCase):
         tester = sqlite3.connect(dbname)
         self.assertTrue(tester)
 
-    #check login functionality
-    def test_client(self):
-        tester = app.test_client().post('/login', 
-            data={
-                'Benutzername': 'lena', 
-                'Passwort': 'x',
-                'Email': 'lena@gerken.de',
-                'Adresse': 1
-                })
-        self.assertTrue(tester)
-
     #check register redirect
     def test_register_redirect(self):
         tester = app.test_client(self)
@@ -71,6 +60,123 @@ class FlaskTestCase(unittest.TestCase):
             self.assertEqual(session.get("username") != "", True)
             self.assertEqual(response.data != b"", True)
 
+    #check timeframe functionality
+    def test_timeframes(self):
+        tester = app.test_client().post('/add-timeframe/1', 
+            data={
+                'startdate': '2022-06-01', 
+                'enddate': '2022-06-03'
+                })
+        self.assertTrue(tester)
+
+    #check edit functionality
+    def test_edit(self):
+        tester = app.test_client().post('/edit-car/1', 
+            data={
+                'modell': 'E-Klasse', 
+                'fahrzeugtyp': 'Limousine',
+                'hersteller': 'Mercedes-Benz',
+                'preis': '40'
+                })
+        self.assertTrue(tester)
+
+#check profile page redirect
+    def test_profile_redirect(self):
+        tester = app.test_client().post('/profile', 
+            data={
+
+                })
+        self.assertTrue(tester)
+
+#check profile page
+    def test_profile(self):
+        tester = app.test_client().post('/profile', 
+            data={
+                'UserID': 2, 
+                'formButton': 'Speichern',
+                'username': 'lena', 
+                'password': 'x',
+                'email': 'lena@gerken.de',
+                'Adresse': 1
+                })
+        self.assertTrue(tester)
+
+#check findCar page
+    def test_findcar(self):
+        tester = app.test_client().post('/findCar', 
+            data={
+                    'UserID': 2
+                })
+        self.assertTrue(tester)
+
+#check findCar page
+    def test_findcar_loggedin(self):    # not really working, not logged in
+        tester = app.test_client().post('/findCar', 
+            data={
+                    'place': 'Stuttgart',
+                    'filter': 'Suchen',
+                })
+        self.assertTrue(tester)
+
+#check rentcar functionality
+    def test_rentcar(self):
+        tester = app.test_client().post('/rent-car/1', 
+            data={
+                    'startdate': '2022-06-01',
+                    'enddate': '2022-06-03'
+                })
+        self.assertTrue(tester)
+
+#check logout functionality
+    def test_logout(self):
+        tester = app.test_client().post('/logout', 
+            data={
+
+                })
+        self.assertTrue(tester)
+
+#check login functionality
+    def test_login(self):
+        tester = app.test_client().post('/login', 
+            data={
+                    'email': 'peter@schmidt.de',
+                    'password': 'MeinHund'
+                })
+        self.assertTrue(tester)
+
+#test findcar route
+    def test_findcar_route_loggedin2(self):
+        with app.test_client() as c:
+            tester = c.post('/login', 
+                data={
+                        'email': 'peter@schmidt.de',
+                        'password': 'MeinHund'
+                    })
+            self.assertTrue(tester)
+            resp = c.get('/findCar')
+            statuscode = resp.status_code
+            self.assertEqual(statuscode, 200)
+
+    #test profile route
+    def test_profile_loggedin(self):
+        with app.test_client() as c:
+            tester = c.post('/login', 
+                data={
+                        'email': 'peter@schmidt.de',
+                        'password': 'MeinHund'
+                    })
+            self.assertTrue(tester)
+            resp = c.get('/profile')
+            statuscode = resp.status_code
+            self.assertEqual(statuscode, 200)
+            
+    def test_logout_loggedin(self):
+        with app.test_client() as c:
+            tester = c.post('/login', 
+                data={
+                        'email': 'peter@schmidt.de',
+                        'password': 'MeinHund'
+                    })
+
 if __name__ == '__main__':
     unittest.main()
-

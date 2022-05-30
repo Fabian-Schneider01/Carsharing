@@ -72,17 +72,28 @@
                                 <ul class="list-group list-group-flush">
                                     <li class="list-group-item">Tagespreis: {{car[4]}}</li>                           
                                     <!-- TODO alle mieter und blockierte zeiträume eintragen -->
-                                    <li class="list-group-item">
+                                    <li class="list-group-item" style="background-color: #CFEFC8">
                                         <label for="period" class="mt-2 mb-2">Verfügbare Zeiträume</label>
                                         <!-- TODO alle verfügbare zeiträume eintragen -->
                                         <svg xmlns="http://www.w3.org/2000/svg"  data-bs-toggle="modal" data-bs-target="#timeframes{{ car[0] }}" data-id="{{ car[0] }}"style="margin-right: 1rem;" type="button" width="25" height="25" fill="#0d6efd" class=" bi bi-plus-circle-fill mr-5" viewBox="0 0 16 16">
                                             <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
                                         </svg>
                                     </li>
-                                    {% for period in periods %}
-                                        {% if period[0] != None %}
-                                            <li class="list-group-item">
-                                                <label for="period" class="mt-2 mb-2">Zeitraum: {{period[0]}} bis {{period[1]}}</label>
+                                    {% for date in all_dates[0] %}
+                                        {% if date != None %}
+                                            <li for="period" class="list-group-item">
+                                                <label class="mt-2 mb-2">Datum: {{date[0]}}</label>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <li class="list-group-item" style="background-color: #EFC9C8">
+                                        <label for="period" class="mt-2 mb-2">Vermietete Zeiträume</label>
+                                    </li>
+                                    {% for rented in all_rented[0] %}
+                                        {% if rented != None %}
+                                            <li for="period" class="list-group-item">
+                                                <label class="mt-2 mb-2">Startdatum: {{rented[0]}}</label>
+                                                <label class="mt-2 mb-2">Enddatum: {{rented[1]}}</label>
                                             </li>
                                         {% endif %}
                                     {% endfor %}
