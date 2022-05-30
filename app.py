@@ -125,7 +125,7 @@ def profile():
                 city = cur.execute("SELECT Ort from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
                 postalCode = cur.execute("SELECT Postleitzahl from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
                 credit = cur.execute("SELECT Guthaben from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
-                periods = cur.execute("SELECT Verfuegbar.Startdatum, Verfuegbar.Enddatum FROM Verfuegbar LEFT JOIN Autobesitzer ON Autobesitzer.Auto = Verfuegbar.Auto LEFT JOIN User ON UserID = Autobesitzer.User WHERE UserID = (?)", [(session["UserID"])]).fetchall()
+                periods = cur.execute("SELECT Verfuegbar.Datum FROM Verfuegbar LEFT JOIN Autobesitzer ON Autobesitzer.Auto = Verfuegbar.Auto LEFT JOIN User ON UserID = Autobesitzer.User WHERE UserID = (?)", [(session["UserID"])]).fetchall()
                 print(periods)
             con.commit()
             with sqlite3.connect("database.sqlite") as con:
