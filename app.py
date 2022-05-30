@@ -670,8 +670,8 @@ def findCar():
                                 checkflag = 2
                             if checkflag == 0:
                                 cur.execute("INSERT INTO Mietauftrag(Mieter, Vermieter, Auto, Gesamtpreis, Startdatum, Enddatum, Ueberweisungsdatum) VALUES(?, ?, ?, ?, ?, ?, ?)", ((session["UserID"]), (lessor), (session["matchedCars"][i][0]), (endPrice), (startDate), (endDate), (startDate)))
-                                cur.execute("UPDATE User SET Guthaben= Guthaben - (?) WHERE UserID=(?)", [(endPrice), (session["UserID"])])
-                                cur.execute("UPDATE User SET Guthaben= Guthaben + (?) WHERE UserID=(?)", [(endPrice), (lessor)])
+                                cur.execute("UPDATE User SET Guthaben = Guthaben - (?) WHERE UserID = (?)", [(endPrice), (session["UserID"])])
+                                cur.execute("UPDATE User SET Guthaben = Guthaben + (?) WHERE UserID = (?)", [(endPrice), (lessor)])
                                 for date in allRentedDates:
                                     cur.execute("DELETE FROM Verfuegbar WHERE User=(?) AND Datum = (?)", (session["UserID"], date))
                                 con.commit()
@@ -720,43 +720,44 @@ def rent_car(id):
     enddate = datetime.date.fromisoformat(end)
     print(enddate)
 
-    allRentedDates = []
     with sqlite3.connect("database.sqlite") as con:
         cur = con.cursor()
         pricePerDay = cur.execute("SELECT PreisProTag FROM Autos WHERE AutoID = (?)", [(id)]).fetchone()[0] #change 30 to variable
-        amountDays = startdate - enddate + datetime.timedelta(days=1)
+        amountDays = (enddate - startdate).days + 1
         endPrice = amountDays * pricePerDay
+        print("Gesamtpreis: " + str(endPrice))
 
-        date = startdate
-
-        available = cur.execute("SELECT * FROM User").fetchall()
-        print(available)
         try:
+            allRentedDates = []
+            date = startdate
             while date <= enddate:
-                #available = cur.execute("SELECT Datum FROM Verfuegbar WHERE Auto=(?) and Datum=(?)", [(id), (date)]).fetchone()
-                available = cur.execute("SELECT * FROM Verfuegbar").fetchall()[0]   # TUT NICHT
+                available = cur.execute("SELECT Datum FROM Verfuegbar WHERE Auto=(?) and Datum=(?)", [(id), (date)]).fetchone()
+                #available = cur.execute("SELECT * FROM Verfuegbar").fetchall()   # TUT NICHT
                 print("all dates:")
                 print(available)
                 if available == None:
                     print("NOT AVAILABLE" + str(date))
                     raise Exception("Der angeforderte Zeitraum ist nicht verfügbar!")
                 else:
-                    print(available)
                     available = available[0] 
                     print(available[0])
                     allRentedDates.append(date)                           
                     date = date + datetime.timedelta(days=1)
             try:
+                print("all rented dates: " + str(allRentedDates))
                 guthaben = cur.execute("SELECT Guthaben FROM User WHERE UserID=(?)", [(session["UserID"])]).fetchone()[0]
+                print("guthaben " + str(guthaben))
                 if endPrice > guthaben:
                     raise Exception("Das Guthaben reicht nicht aus, um das Auto zu mieten!")
                 else:
                     print("FIx")
-                    cur.execute("INSERT INTO Mietauftrag(Mieter, Vermieter, Auto, Gesamtpreis, Startdatum, Enddatum, Ueberweisungsdatum) VALUES(?, ?, ?, ?, ?, ?, ?)", ((session["UserID"]), (2), (session["matchedCars"][i][0]), (endPrice), (startDate), (endDate), (startDate)))
-                    cur.execute("UPDATE User SET Guthaben= Guthaben - (?) WHERE UserID=(?)", [(endPrice), (session["UserID"])])
-                    cur.execute("UPDATE User SET Guthaben= Guthaben + (?) WHERE UserID=(?)", [(endPrice), (lessor)])
+                    cur.execute("INSERT INTO Mietauftrag(Mieter, Auto, Gesamtpreis, Startdatum, Enddatum) VALUES(?, ?, ?, ?, ?)", ((session["UserID"]), (id), (endPrice), (startdate), (enddate)))
+                    cur.execute("UPDATE User SET Guthaben = (Guthaben - (?)) WHERE UserID = (?)", [(endPrice), (session["UserID"])])
+                    vermieter = cur.execute("SELECT UserID FROM User JOIN Autobesitzer ON User.UserID = Autobesitzer.User LEFT JOIN Autos ON Autobesitzer.Auto = Autos.AutoID WHERE AutoID = (?)", [(id)]).fetchone()[0]
+                    print("Vermieter: " + str(vermieter))
+                    cur.execute("UPDATE User SET Guthaben = (Guthaben + (?)) WHERE UserID = (?)", [(endPrice), (vermieter)])
                     for date in allRentedDates:
-                        cur.execute("DELETE FROM Verfuegbar WHERE User=(?) AND Datum = (?)", (session["UserID"], date))
+                        cur.execute("DELETE FROM Verfuegbar WHERE Auto=(?) AND Datum = (?)", (id, date))
             except:
                 print("Das Guthaben reicht nicht aus, um das Auto zu mieten!")
         except:
