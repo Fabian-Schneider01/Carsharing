@@ -226,11 +226,14 @@ def edit_car(id):
     con.commit()
     return redirect(url_for("profile"))
 
+"""
+redirect for adding new timeframes where the user wants to rent their car
+checks if given values are allowed and stores them
+"""
 @app.route("/add-timeframe/<id>", methods=['GET', 'POST'])
 def add_timeframe(id):
     start = request.form['startdate']
     end = request.form['enddate']
-    # TODO: Einträge in der Vergangenheit löschen/ignorieren, auch beim Suchen und Mieten
     with sqlite3.connect("database.sqlite") as con:
         cur = con.cursor()
         cur.execute("INSERT INTO Verfuegbar VALUES(?, ?)", [id, "2022-06-01"])
@@ -273,7 +276,10 @@ def add_timeframe(id):
     con.commit()
     return redirect(url_for("profile"))
 
-# TODO change startdate enddate references to its own table
+"""
+displays the explore page
+filters the results shown when the filters have been selected
+"""
 @app.route("/findCar", methods=['GET', 'POST'])
 def findCar():
     matchedUserCars = None
@@ -305,29 +311,29 @@ def findCar():
                     else:
                         incompleteFilter = 0
 
+                    
                     print("Filtered Search: ", filterPlace, " ", filterStartdate, " ", filterEnddate, " ", filterClass, " ", filterMaxPrice)
                     matchingUser = cur.execute("SELECT UserID FROM User INNER JOIN Adresse ON Adresse.AdressID = User.Adresse WHERE Adresse.Ort == (?)", [(filterPlace)]).fetchall()              
                     if matchingUser != []:
-                        print(matchingUser[0][0])
                         matchedUserCars = cur.execute("SELECT AutoID, Hersteller, Modell, Fahrzeugtyp, PreisProTag FROM User LEFT JOIN Autobesitzer ON User.UserID = Autobesitzer.User LEFT JOIN Autos ON Autobesitzer.Auto = Autos.AutoID WHERE UserID=(?)", [(matchingUser[0][0])]).fetchall()
-                        print(matchedUserCars[0])
                         if matchedUserCars != "":
                             for i in range(len(matchedUserCars)):
                                 if filterClass in matchedUserCars[i][3]:
                                     if matchedUserCars != []:
                                         return render_template("findCar.html", cars = matchedUserCars)
                         
+                                                       
                     print("Filtered Search: ", filterPlace, " ", filterStartdate, " ", filterEnddate, " ", filterClass, " ", filterMaxPrice)
                 else:
-                    matchedCars = cur.execute("SELECT AutoID, Hersteller, Modell, Fahrzeugtyp, PreisProTag from Autos LEFT JOIN Autobesitzer").fetchall()[0]  # where autobesitzer ungleich session user. TODO Autobesitzer tabelle killen
+                    matchedCars = cur.execute("SELECT AutoID, Hersteller, Modell, Fahrzeugtyp, PreisProTag from Autos LEFT JOIN Autobesitzer").fetchall()[0]
                     for i in range(len(matchedCars)):
                         print(matchedCars[i])
-                        if request.form.get(str(session["matchedCars"][i][0])) == "mieten": # FIXEN!
+                        if request.form.get(str(session["matchedCars"][i][0])) == "mieten":
                             print("selected car")
-                            lessor = cur.execute("SELECT User FROM Autobesitzer WHERE Auto = (?)", [(matchedCars[i][0])]).fetchone()[0] #change 30 to variable
-                            startDate = cur.execute("SELECT Startdatum FROM Autos WHERE AutoID = (?)", [(matchedCars[i][0])]).fetchone()[0] #change 30 to variable
-                            endDate = cur.execute("SELECT Enddatum FROM Autos WHERE AutoID = (?)", [(matchedCars[i][0])]).fetchone()[0] #change 30 to variable
-                            pricePerDay = cur.execute("SELECT PreisProTag FROM Autos WHERE AutoID = (?)", [(matchedCars[i][0])]).fetchone()[0] #change 30 to variable
+                            lessor = cur.execute("SELECT User FROM Autobesitzer WHERE Auto = (?)", [(matchedCars[i][0])]).fetchone()[0]
+                            startDate = cur.execute("SELECT Startdatum FROM Autos WHERE AutoID = (?)", [(matchedCars[i][0])]).fetchone()[0]
+                            endDate = cur.execute("SELECT Enddatum FROM Autos WHERE AutoID = (?)", [(matchedCars[i][0])]).fetchone()[0]
+                            pricePerDay = cur.execute("SELECT PreisProTag FROM Autos WHERE AutoID = (?)", [(matchedCars[i][0])]).fetchone()[0]
                             ammountDays = cur.execute("SELECT JULIANDAY(Enddatum) - JULIANDAY(Startdatum) AS difference FROM Autos WHERE AutoID = (?)", [(matchedCars[i][0])]).fetchone()[0]
                             endPrice = ammountDays * pricePerDay
                             print(session["UserID"])
@@ -347,7 +353,6 @@ def findCar():
                                 if available == None:
                                     checkflag = 1
                                     break
-                                    # abbrechen, popup-message 
                                 allRentedDates.append(date)                           
                                 date = date + datetime.timedelta(days=1)
                             guthaben = cur.execute("SELECT Guthaben FROM User WHERE UserID=(?)", [(session["UserID"])]).fetchone()[0]
@@ -361,24 +366,22 @@ def findCar():
                                     cur.execute("DELETE FROM Verfuegbar WHERE User=(?) AND Datum = (?)", (session["UserID"], date))
                                 con.commit()
                             elif checkflag == 1:
-                                # fehlermeldung 
                                 print("Der angeforderte Zeitraum ist nicht verfügbar!") 
                             elif checkflag == 2:
-                                # fehlermeldung zu wenig guthaben
                                 print("Das Guthaben reicht nicht aus, um das Auto zu mieten!")
-                            ###
                             
                             break
                     
     if request.method == 'POST':
         startdate = request.form['startdate']
-        print(startdate)
         enddate = request.form['enddate']
         print(enddate)
-        current_user_id = session['UserID']
-        id_car = None
+        
     return render_template("findCar.html", cars = cars, incompleteFilter = incompleteFilter)
 
+"""
+redirect for renting a car selected by the user on the findCar-page
+"""
 @app.route("/rent-car/<id>", methods=['GET', 'POST'])
 def rent_car(id):
     start = request.form['startdate']
@@ -386,13 +389,15 @@ def rent_car(id):
     end = request.form['enddate']
     enddate = datetime.date.fromisoformat(end)
 
+    # get price information from database
     with sqlite3.connect("database.sqlite") as con:
         cur = con.cursor()
-        pricePerDay = cur.execute("SELECT PreisProTag FROM Autos WHERE AutoID = (?)", [(id)]).fetchone()[0] #change 30 to variable
+        pricePerDay = cur.execute("SELECT PreisProTag FROM Autos WHERE AutoID = (?)", [(id)]).fetchone()[0]
         amountDays = (enddate - startdate).days + 1
         endPrice = amountDays * pricePerDay
 
         try:
+            # only rentable if car is available for selected timeframe
             allRentedDates = []
             date = startdate
             while date <= enddate:
@@ -404,6 +409,7 @@ def rent_car(id):
                     allRentedDates.append(date)                           
                     date = date + datetime.timedelta(days=1)
             try:
+                # only rentable if enough money left
                 guthaben = cur.execute("SELECT Guthaben FROM User WHERE UserID=(?)", [(session["UserID"])]).fetchone()[0]
                 if endPrice > guthaben:
                     raise Exception("Das Guthaben reicht nicht aus, um das Auto zu mieten!")
