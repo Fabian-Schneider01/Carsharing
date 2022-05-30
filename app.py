@@ -305,9 +305,9 @@ def findCar():
         if request.method == "POST":
             #change name to rentCar-i => i = AutoID 
             with sqlite3.connect("database.sqlite") as con:
-                #FILTER available = cur.execute("SELECT Datum FROM Verfuegbar WHERE Auto=(?)", [(id)]).fetchall()[0]
+                available = cur.execute("SELECT Datum FROM Verfuegbar WHERE Auto=(?)", [(id)]).fetchall()[0]
                 available_dates = [datetime.date.fromisoformat(i) for i in available]
-                #sorted_dates = sorted(available_dates)
+
                 cur = con.cursor()
                 filteredCars =[]
                 filterPlace = request.form["place"]
@@ -328,6 +328,15 @@ def findCar():
                                         filterPeriod = (datetime.strptime(request.form["enddate"], "%Y-%m-%d") - datetime.strptime(request.form["startdate"], "%Y-%m-%d")).days
                                         cars = cur.execute("SELECT UserID, AutoID FROM User LEFT JOIN Adresse ON Adresse.AdressID = User.Adresse LEFT JOIN Autobesitzer ON Autobesitzer.User = User.UserID LEFT JOIN Autos ON AutoID = Autobesitzer.Auto LEFT JOIN Verfuegbar ON Verfuegbar.Auto = Autobesitzer.Auto WHERE Autobesitzer.User = User.UserID AND Ort = (?) AND Fahrzeugtyp = (?) AND (?) * PreisProTag <= (?) AND UserID != (?)", [(filterPlace), (filterClass), (filterPeriod), (filterMaxPrice), (session["UserID"])]).fetchall()
                                         #FILTERfor i in range(available):
+                                        startdate = datetime.date.fromisoformat(filterStartdate)
+                                        enddate = datetime.date.fromisoformat(filterEnddate)
+                                        date = startdate
+                                        while date <= enddate:
+                                            # check each
+                                            if not(date in available_dates):
+                                                # do not show this car as it is not available for the selected timeperiod
+                                                break                                              
+                                            date = date + datetime.timedelta(days=1)
                                             
                                         if cars != None:
                                             for i in range(len(cars)):
