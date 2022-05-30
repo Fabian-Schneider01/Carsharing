@@ -176,19 +176,14 @@ def profile():
 
     elif request.method == 'POST' and request.form['formButton'] == "Hinzufügen":
         modell = request.form['modell']
-        print(modell)
         fahrzeugtyp = request.form['fahrzeugtyp']
-        print(fahrzeugtyp)
         hersteller = request.form['hersteller']
-        print(hersteller)
         preis = request.form['preis']
-        print(preis)
         current_user_id = session['UserID']
         with sqlite3.connect("database.sqlite") as con:
             cur = con.cursor()
             cur.execute("INSERT INTO Autos(Hersteller, Modell, Fahrzeugtyp, PreisProTag) VALUES((?), (?), (?), (?))", [(hersteller), (modell), (fahrzeugtyp), (preis)])
             car_id = cur.execute("SELECT AutoID FROM Autos WHERE AutoID=(SELECT max(AutoID) FROM Autos)").fetchone()[0]
-            print(car_id)
             cur.execute("INSERT INTO Autobesitzer VALUES((?), (?))", [current_user_id, car_id])
         con.commit()
         return redirect(url_for("profile"))
@@ -197,7 +192,6 @@ def profile():
 
 @app.route("/edit-car/<id>", methods=['GET', 'POST'])
 def edit_car(id):
-    print(id)
     modell = request.form['modell']
     fahrzeugtyp = request.form['fahrzeugtyp']
     hersteller = request.form['hersteller']
@@ -213,12 +207,8 @@ def edit_car(id):
 
 @app.route("/add-timeframe/<id>", methods=['GET', 'POST'])
 def add_timeframe(id):
-    print("arrived")
-    print(id)
     start = request.form['startdate']
-    print(start)
     end = request.form['enddate']
-    print(end)
     # TODO: Einträge in der Vergangenheit löschen/ignorieren, auch beim Suchen und Mieten
     with sqlite3.connect("database.sqlite") as con:
         cur = con.cursor()
@@ -228,19 +218,12 @@ def add_timeframe(id):
         # find all the timeframes where the car is rented already  
         rented = cur.execute("SELECT Startdatum, Enddatum FROM Mietauftrag WHERE Auto=(?)", [(id)]).fetchall()
     con.commit() 
-    print(available)  
-    print(rented)
 
     startdate = datetime.date.fromisoformat(start)
-    print("Startdate")
-    print(startdate)
     enddate = datetime.date.fromisoformat(end)    
 
     available_dates = [datetime.date.fromisoformat(i) for i in available]
-    print(available_dates)
     rented_dates = [(datetime.date.fromisoformat(i[0]), datetime.date.fromisoformat(i[1])) for i in rented]
-    print(rented_dates)
-
     # check for overlap with rented times
     not_rented_dates = []
     date = startdate
@@ -253,11 +236,6 @@ def add_timeframe(id):
         if flag == 0:
             not_rented_dates.append(date)
         date = date + datetime.timedelta(days=1)
-        print("new date")
-        print(date)
-
-    print("not rented dates")
-    print(not_rented_dates)
 
     # check for overlap with dates already marked as available
     dates_to_add = []
@@ -310,7 +288,6 @@ def findCar():
                 #available_dates = [datetime.date.fromisoformat(i) for i in available]
 
                 cur = con.cursor()
-                filteredCars =[]
                 filterPlace = request.form["place"]
                 if request.form.get("filter") == "Suchen":
                     filterPlace = request.form["place"]
@@ -435,21 +412,16 @@ def findCar():
 
 @app.route("/rent-car/<id>", methods=['GET', 'POST'])
 def rent_car(id):
-    print("Lets rent a car!")
-    print(id)
     start = request.form['startdate']
     startdate = datetime.date.fromisoformat(start)
-    print(startdate)
     end = request.form['enddate']
     enddate = datetime.date.fromisoformat(end)
-    print(enddate)
 
     with sqlite3.connect("database.sqlite") as con:
         cur = con.cursor()
         pricePerDay = cur.execute("SELECT PreisProTag FROM Autos WHERE AutoID = (?)", [(id)]).fetchone()[0] #change 30 to variable
         amountDays = (enddate - startdate).days + 1
         endPrice = amountDays * pricePerDay
-        print("Gesamtpreis: " + str(endPrice))
 
         try:
             allRentedDates = []
@@ -458,29 +430,20 @@ def rent_car(id):
                 #available = cur.execute("SELECT Datum FROM Verfuegbar WHERE Auto=(?) and Datum=(?)", [(id), (date)]).fetchone()
                 #available = cur.execute("SELECT * FROM Verfuegbar").fetchall()   # TUT NICHT
                 available = cur.execute("SELECT Datum FROM Verfuegbar WHERE Auto=(?) and Datum=(?)", [(id), (date)]).fetchone()
-                #available = cur.execute("SELECT * FROM Verfuegbar").fetchall()   # TUT NICHT
-                print("all dates:")
-                print(available)
                 if available == None:
-                    print("NOT AVAILABLE" + str(date))
                     raise Exception("Der angeforderte Zeitraum ist nicht verfügbar!")
                 else:
                     available = available[0] 
-                    print(available[0])
                     allRentedDates.append(date)                           
                     date = date + datetime.timedelta(days=1)
             try:
-                print("all rented dates: " + str(allRentedDates))
                 guthaben = cur.execute("SELECT Guthaben FROM User WHERE UserID=(?)", [(session["UserID"])]).fetchone()[0]
-                print("guthaben " + str(guthaben))
                 if endPrice > guthaben:
                     raise Exception("Das Guthaben reicht nicht aus, um das Auto zu mieten!")
                 else:
-                    print("FIx")
                     cur.execute("INSERT INTO Mietauftrag(Mieter, Auto, Gesamtpreis, Startdatum, Enddatum) VALUES(?, ?, ?, ?, ?)", ((session["UserID"]), (id), (endPrice), (startdate), (enddate)))
                     cur.execute("UPDATE User SET Guthaben = (Guthaben - (?)) WHERE UserID = (?)", [(endPrice), (session["UserID"])])
                     vermieter = cur.execute("SELECT UserID FROM User JOIN Autobesitzer ON User.UserID = Autobesitzer.User LEFT JOIN Autos ON Autobesitzer.Auto = Autos.AutoID WHERE AutoID = (?)", [(id)]).fetchone()[0]
-                    print("Vermieter: " + str(vermieter))
                     cur.execute("UPDATE User SET Guthaben = (Guthaben + (?)) WHERE UserID = (?)", [(endPrice), (vermieter)])
                     for date in allRentedDates:
                         cur.execute("DELETE FROM Verfuegbar WHERE Auto=(?) AND Datum = (?)", (id, date))

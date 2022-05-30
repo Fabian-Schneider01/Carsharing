@@ -57,6 +57,40 @@ class FlaskTestCase(unittest.TestCase):
             statuscode = resp.status_code
             self.assertEqual(statuscode, 200)
 
+        #test register route
+    def test_register_route_loggedin(self):
+        with app.test_client() as c:
+            tester = c.post('/register', 
+                data={
+                        'username': 'peter123',
+                        'firstName': 'Peter',
+                        'lastName': 'Schmidt',
+                        'email': 'peter@schmidt.de',
+                        'street': 'Teststrasse',
+                        'houseNum': '456',
+                        'city': 'Unitteststadt',
+                        'postalCode': '98765',
+                        'password': 'MeinHund'
+                    })
+            self.assertTrue(tester)
+
+            #test register route
+    def test_register_route_loggedin_2(self):
+        with app.test_client() as c:
+            tester = c.post('/register', 
+                data={
+                        'username': '',
+                        'firstName': 'Peter',
+                        'lastName': 'Schmidt',
+                        'email': 'peter@schmidt.de',
+                        'street': 'Teststrasse',
+                        'houseNum': '456',
+                        'city': 'Unitteststadt',
+                        'postalCode': '98765',
+                        'password': 'MeinHund'
+                    })
+            self.assertTrue(tester)
+
     #test profile route
     def test_profile_route(self):
         tester = app.test_client(self)
@@ -168,6 +202,28 @@ class FlaskTestCase(unittest.TestCase):
                 })
         self.assertTrue(resp)
 
+    #test profile route
+    def test_profile_loggedin_post(self):
+        with app.test_client() as c:
+            tester = c.post('/login', 
+                data={
+                        'email': 'peter@schmidt.de',
+                        'password': 'MeinHund'
+                    })
+            self.assertTrue(tester)
+            resp = c.post('/profile', 
+            data={
+                'formButton': 'Speichern',
+                'username': 'lena', 
+                'password': 'x',
+                'email': 'lena@gerken.de',
+                'street': 'Testweg',
+                'houseNum': 1,
+                'city': 'Muenchen',
+                'postalCode': 12345
+                })
+        self.assertTrue(resp)
+
 #check findCar page
     def test_findcar(self):
         tester = app.test_client().post('/findCar', 
@@ -185,10 +241,36 @@ class FlaskTestCase(unittest.TestCase):
                         'password': 'MeinHund'
                     })
             self.assertTrue(tester)
+            #assert c.form.get("filter") == "Suchen"
             resp = c.post('/findCar', 
             data={
-                    'place': 'Stuttgart',
                     'filter': 'Suchen',
+                    'place': 'Stuttgart',
+                    'startdate': '2022-06-01',
+                    'enddate': '2022-06-05',
+                    'carclass': 'Limousine',
+                    'maxprice': '200'
+                })
+        self.assertTrue(resp)
+
+    def test_edit_profile(self):
+        with app.test_client() as c:
+            tester = c.post('/login', 
+                data={
+                        'email': 'peter@schmidt.de',
+                        'password': 'MeinHund'
+                    })
+            self.assertTrue(tester)
+            resp = c.post('/profile', 
+            data={
+                    'username': 'peter33',
+                    'password': 'MeinHund',
+                    'passwordConfirm': 'MeinHund',
+                    'email': 'peter@schmidt.de',
+                    'street': 'Hammanstraße',
+                    'houseNum': '2',
+                    'city': 'Frankfurt am Main',
+                    'postalCode': '60322',
                 })
         self.assertTrue(resp)
 
