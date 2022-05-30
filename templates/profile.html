@@ -62,24 +62,33 @@
                 <div class="card-body">
 
                     {% for car in cars %}
-                    <div class="card shadow-sm mt-2 mb-4">
-                        <h5 class="card-header text-center d-flex justify-content-between align-items-center">
-                            {{car[1]}} {{car[2]}} {{car[3]}}
-                            <!--<button type="button" class="btn btn-sm btn-primary">Bearbeiten</button>-->
-                            <button type="button" data-bs-toggle="modal" data-bs-target="#edit{{ car[0] }}" data-id="{{ car[0] }}" class="btn btn-sm btn-primary"> Bearbeiten </button>
-                        </h5>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item">Tagespreis: {{car[4]}}</li>                           
-                            <!-- TODO alle mieter und blockierte zeiträume eintragen -->
-                            <li class="list-group-item">
-                                <label for="period" class="mt-2 mb-2">Verfügbare Zeiträume</label>
-                                    <!-- TODO alle verfügbare zeiträume eintragen -->
-                                    <svg xmlns="http://www.w3.org/2000/svg"  data-bs-toggle="modal" data-bs-target="#timeframes{{ car[0] }}" data-id="{{ car[0] }}"style="margin-right: 1rem;" type="button" width="25" height="25" fill="#0d6efd" class=" bi bi-plus-circle-fill mr-5" viewBox="0 0 16 16">
-                                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
-                                    </svg>
-                                </li>
-                        </ul>
-                    </div>
+                        {% if cars[0][0] != None %}
+                            <div class="card shadow-sm mt-2 mb-4">
+                                <h5 class="card-header text-center d-flex justify-content-between align-items-center">
+                                    {{car[1]}} {{car[2]}} {{car[3]}}
+                                    <!--<button type="button" class="btn btn-sm btn-primary">Bearbeiten</button>-->
+                                    <button type="button" data-bs-toggle="modal" data-bs-target="#edit{{ car[0] }}" data-id="{{ car[0] }}" class="btn btn-sm btn-primary"> Bearbeiten </button>
+                                </h5>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">Tagespreis: {{car[4]}}</li>                           
+                                    <!-- TODO alle mieter und blockierte zeiträume eintragen -->
+                                    <li class="list-group-item">
+                                        <label for="period" class="mt-2 mb-2">Verfügbare Zeiträume</label>
+                                        <!-- TODO alle verfügbare zeiträume eintragen -->
+                                        <svg xmlns="http://www.w3.org/2000/svg"  data-bs-toggle="modal" data-bs-target="#timeframes{{ car[0] }}" data-id="{{ car[0] }}"style="margin-right: 1rem;" type="button" width="25" height="25" fill="#0d6efd" class=" bi bi-plus-circle-fill mr-5" viewBox="0 0 16 16">
+                                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
+                                        </svg>
+                                    </li>
+                                    {% for period in periods %}
+                                        {% if period[0] != None %}
+                                            <li class="list-group-item">
+                                                <label for="period" class="mt-2 mb-2">Zeitraum: {{period[0]}} bis {{period[1]}}</label>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
                     {% endfor %}
                 </div>
             </div>
@@ -141,7 +150,7 @@
                                         </svg>
                                     </button>
                                 </span>
-                                <input style="border-radius: 5px;"type="preis" name="preis" class="form-control input-number" id="preis_id" value="0" min="1" max="1000"  value="{{car[4]}}">
+                                <input style="border-radius: 5px;"type="preis" name="preis" class="form-control input-number" id="preis_id" value="{{car[4]}}" min="1" max="1000"  value="{{car[4]}}">
                                 <span class="input-group-btn">
                                     <button id="add-credit">
                                         <svg data-type="plus" type="button" data-field="preis" style="margin-left: 5px; margin-top: 3px;" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#0d6efd" class="btn-price bi bi-plus-circle-fill mr-5" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>

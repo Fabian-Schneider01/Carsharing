@@ -1,7 +1,9 @@
+# coding=utf-8
 from flask import *
 import sqlite3
 from models import createTabels
 from datetime import datetime
+
 
 app = Flask(__name__)
 app.secret_key = "4khJ7Ggljy"
@@ -101,6 +103,7 @@ def profile():
     credit = None
     password = None
     rented = []
+    periods = []
     if request.method == "GET":
         if session.get("UserID") is None:
             with sqlite3.connect("database.sqlite") as con:
@@ -122,6 +125,8 @@ def profile():
                 city = cur.execute("SELECT Ort from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
                 postalCode = cur.execute("SELECT Postleitzahl from Adresse WHERE AdressID=(?)", [(addressID)]).fetchone()[0]
                 credit = cur.execute("SELECT Guthaben from User WHERE UserID=(?)", [(userID)]).fetchone()[0]
+                periods = cur.execute("SELECT Verfuegbar.Startdatum, Verfuegbar.Enddatum FROM Verfuegbar LEFT JOIN Autobesitzer ON Autobesitzer.Auto = Verfuegbar.Auto LEFT JOIN User ON UserID = Autobesitzer.User WHERE UserID = (?)", [(session["UserID"])]).fetchall()
+                print(periods)
             con.commit()
             with sqlite3.connect("database.sqlite") as con:
             # for displaying all the car the user has added
@@ -186,9 +191,8 @@ def profile():
             cur.execute("INSERT INTO Autobesitzer VALUES((?), (?))", [current_user_id, car_id])
         con.commit()
         return redirect(url_for("profile"))
-        
-        
-    return render_template("profile.html", email = email, username = username, firstName = firstName, lastName = lastName, street = street, houseNum = houseNum, city = city, postalCode = postalCode, credit = credit, password = password, cars = cars, rentCars = [], rented = rented)
+    print(cars[0][0])
+    return render_template("profile.html", email = email, username = username, firstName = firstName, lastName = lastName, street = street, houseNum = houseNum, city = city, postalCode = postalCode, credit = credit, password = password, cars = cars, rentCars = [], rented = rented, periods = periods[:5])
 
 @app.route("/edit-car/<id>", methods=['GET', 'POST'])
 def edit_car(id):
@@ -217,7 +221,7 @@ def add_timeframe(id):
 
     with sqlite3.connect("database.sqlite") as con:
             cur = con.cursor()
-            cur.execute("INSERT INTO Verfuegbar(Auto, Startdatum, Enddatum) VALUES((?), (?), (?))", [(id), (startdate), (enddate)])               
+            cur.execute("INSERT INTO Verfuegbar(Auto, Startdatum, Enddatum) VALUES((?), (?), (?))", [(id), (startdate), (enddate)])      
     con.commit()
     return redirect(url_for("profile"))
 
@@ -233,20 +237,116 @@ def findCar():
             # for displaying all the car the user has added
                 cur = con.cursor()
                 userID = session["UserID"]
-                cars = cur.execute("SELECT AutoID, Hersteller, Modell, Fahrzeugtyp, PreisProTag, Startdatum, Enddatum FROM Autos").fetchall()
+                cars = cur.execute("SELECT AutoID, Hersteller, Modell, Fahrzeugtyp, PreisProTag FROM Autos").fetchall()
         if request.method == "POST":
             #change name to rentCar-i => i = AutoID 
             with sqlite3.connect("database.sqlite") as con:
                 cur = con.cursor()
+                filteredCars =[]
+                filterPlace = request.form["place"]
                 if request.form.get("filter") == "Suchen":
                     filterPlace = request.form["place"]
                     filterStartdate = request.form["startdate"]
                     filterEnddate = request.form["enddate"]
                     filterClass = request.form["carclass"]
                     filterMaxPrice = request.form["maxprice"]
+                    #cars = cur.execute(filter(filterPlace, filterStartdate, filterEnddate, filterClass, filterMaxPrice))
+                    
+                    #cur.execute("SELECT UserID FROM User INNER JOIN Adresse ON Adresse.AdressID = User.Adresse WHERE Adresse.Ort == (?)", [(filterPlace)]).fetchall() 
+                    if filterPlace != "":
+                        if filterStartdate != "":
+                            if filterEnddate != "":
+                                if filterClass != "":
+                                    if filterMaxPrice != "":
+                                        filterPeriod = (datetime.strptime(request.form["enddate"], "%Y-%m-%d") - datetime.strptime(request.form["startdate"], "%Y-%m-%d")).days
+                                        print(datetime.strptime(filterStartdate, "%Y-%m-%d").date())
+                                        cars = cur.execute("SELECT UserID FROM User LEFT JOIN Adresse ON Adresse.AdressID = User.Adresse LEFT JOIN Autobesitzer ON Autobesitzer.User = User.UserID LEFT JOIN Autos ON AutoID = Autobesitzer.Auto LEFT JOIN Verfuegbar ON Verfuegbar.Auto = Autobesitzer.Auto WHERE Autobesitzer.User = User.UserID AND Ort = (?) AND Startdatum <= (?) AND Enddatum >= (?) AND Fahrzeugtyp = (?) AND (?) * PreisProTag <= (?) AND UserID != (?)", [(filterPlace), (filterStartdate), (filterEnddate), (filterClass), (filterPeriod), (filterMaxPrice), (session["UserID"])]).fetchone()
+                                        #cars = cur.execute("SELECT * FROM Verfuegbar WHERE Startdatum <= (?) AND Enddatum >= (?)", [(filterStartdate), (filterEnddate)]).fetchone()
+                                        print(cars)
+                                        print("end")
+                                    else:
+                                        print("end")
+                                else:
+                                    if filterMaxPrice != "":
+                                        print("end")
+                                    else:
+                                        print("end")
+                            else:
+                                if filterClass != "":
+                                    if filterMaxPrice != "":
+                                        print("end")
+                                    else:
+                                        print("end")
+                                else:
+                                    if filterMaxPrice != "":
+                                        print("end")
+                                    else:
+                                        print("end")
+                        else:
+                            if filterEnddate != "":
+                                if filterClass != "":
+                                    if filterMaxPrice != "":
+                                        print("end")
+                                    else:
+                                        print("end")
+                                else:
+                                    if filterMaxPrice != "":
+                                        print("end")
+                                    else:
+                                        print("end")
+                            else:
+                                if filterClass != "":
+                                        #max price irelevant => cant be calculated because not dates were given
+                                        cars = cur.execute("SELECT UserID FROM User LEFT JOIN Adresse ON Adresse.AdressID = User.Adresse LEFT JOIN Autobesitzer ON Autobesitzer.User = User.UserID LEFT JOIN Autos ON AutoID = Autobesitzer.Auto LEFT JOIN Verfuegbar ON Verfuegbar.Auto = Autobesitzer.Auto WHERE Autobesitzer.User = User.UserID AND Ort = (?) AND Fahrzeugtyp = (?) AND UserID != ", [(filterPlace), (filterClass), (session["UserID"])]).fetchone()
+                                else:
+                                    cars = cur.execute("SELECT UserID FROM User LEFT JOIN Adresse ON Adresse.AdressID = User.Adresse LEFT JOIN Autobesitzer ON Autobesitzer.User = User.UserID LEFT JOIN Autos ON AutoID = Autobesitzer.Auto LEFT JOIN Verfuegbar ON Verfuegbar.Auto = Autobesitzer.Auto WHERE Autobesitzer.User = User.UserID AND Ort = (?) AND UserID != (?)", [(filterPlace), (session["UserID"])]).fetchone()
+                    else:
+                        if filterStartdate != "":
+                            if filterEnddate != "":
+                                if filterClass != "":
+                                    if filterMaxPrice != "":
+                                        print("end")
+                                    else:
+                                        print("end")
+                                else:
+                                    if filterMaxPrice != "":
+                                        print("end")
+                                    else:
+                                        print("end")
+                            else:
+                                if filterClass != "":
+                                    if filterMaxPrice != "":
+                                        print("end")
+                                    else:
+                                        print("end")
+                                else:
+                                    if filterMaxPrice != "":
+                                        print("end")
+                                    else:
+                                        print("end")
+                        else:
+                            if filterEnddate != "":
+                                if filterClass != "":
+                                    if filterMaxPrice != "":
+                                        print("end")
+                                    else:
+                                        print("end")
+                                else:
+                                    if filterMaxPrice != "":
+                                        print("end")
+                                    else:
+                                        print("end")
+                            else:
+                                if filterClass != "":
+                                    #max price irelevant => cant be calculated because not dates were given
+                                    cars = cur.execute("SELECT Benutzername FROM User LEFT JOIN Adresse ON Adresse.AdressID = User.Adresse LEFT JOIN Autobesitzer ON Autobesitzer.User = User.UserID LEFT JOIN Autos ON AutoID = Autobesitzer.Auto LEFT JOIN Verfuegbar ON Verfuegbar.Auto = Autobesitzer.Auto WHERE Autobesitzer.User = User.UserID AND Fahrzeugtyp = (?) AND UserID != (?)", [(filterClass), (session["UserID"])]).fetchone()
+                                    print(cars)
+                                else:
+                                    None
+                                    
                     print("Filtered Search: ", filterPlace, " ", filterStartdate, " ", filterEnddate, " ", filterClass, " ", filterMaxPrice)
                     #for i in range(cur.execute("SELECT COUNT(*) FROM Autos").fetchone()[0]):
-                    matchingUser = cur.execute("SELECT UserID FROM User INNER JOIN Adresse ON Adresse.AdressID = User.Adresse WHERE Adresse.Ort == (?)", [(filterPlace)]).fetchall()              
+                    """matchingUser = cur.execute("SELECT UserID FROM User INNER JOIN Adresse ON Adresse.AdressID = User.Adresse WHERE Adresse.Ort == (?)", [(filterPlace)]).fetchall()              
                     if matchingUser != []:
                         print(matchingUser[0][0])
                         matchedUserCars = cur.execute("SELECT AutoID, Hersteller, Modell, Fahrzeugtyp, PreisProTag, Startdatum, Enddatum FROM User LEFT JOIN Autobesitzer ON User.UserID = Autobesitzer.User LEFT JOIN Autos ON Autobesitzer.Auto = Autos.AutoID WHERE UserID=(?)", [(matchingUser[0][0])]).fetchall()
@@ -259,7 +359,7 @@ def findCar():
                                         if totalPrice <= int(filterMaxPrice):
                                             cars = matchedUserCars
                                             session["matchedCars"] = matchedUserCars
-                                            return render_template("findCar.html", cars = cars)
+                                            return render_template("findCar.html", cars = cars)"""
                 else:
                     for i in range(len(session["matchedCars"])):
                         print(session["matchedCars"][i][0])
