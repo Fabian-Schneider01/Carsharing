@@ -654,25 +654,33 @@ def findCar():
                             ### check if dates are available
                             date = startdate
                             checkflag = 0
+                            allRentedDates = []
                             while date <= enddate:
                                 available = cur.execute("SELECT Datum FROM Verfuegbar WHERE Auto=(?) AND Datum=(?)", [(id), (date)]).fetchall()[0]
+                                print("AVAILABLE?")
                                 print(available)
                                 if available == None:
                                     checkflag = 1
                                     break
-                                    # abbrechen, popup-message                            
+                                    # abbrechen, popup-message 
+                                allRentedDates.append(date)                           
                                 date = date + datetime.timedelta(days=1)
+                            guthaben = cur.execute("SELECT Guthaben FROM User WHERE UserID=(?)", [(session["UserID"])]).fetchone()[0]
+                            if endPrice > guthaben:
+                                checkflag = 2
                             if checkflag == 0:
                                 cur.execute("INSERT INTO Mietauftrag(Mieter, Vermieter, Auto, Gesamtpreis, Startdatum, Enddatum, Ueberweisungsdatum) VALUES(?, ?, ?, ?, ?, ?, ?)", ((session["UserID"]), (lessor), (session["matchedCars"][i][0]), (endPrice), (startDate), (endDate), (startDate)))
                                 cur.execute("UPDATE User SET Guthaben= Guthaben - (?) WHERE UserID=(?)", [(endPrice), (session["UserID"])])
                                 cur.execute("UPDATE User SET Guthaben= Guthaben + (?) WHERE UserID=(?)", [(endPrice), (lessor)])
+                                for date in allRentedDates:
+                                    cur.execute("DELETE FROM Verfuegbar WHERE User=(?) AND Datum = (?)", (session["UserID"], date))
                                 con.commit()
                             elif checkflag == 1:
                                 # fehlermeldung 
                                 print("Der angeforderte Zeitraum ist nicht verfügbar!") 
                             elif checkflag == 2:
                                 # fehlermeldung zu wenig guthaben
-                                print("guthaben")
+                                print("Das Guthaben reicht nicht aus, um das Auto zu mieten!")
                             ###
                             
                             break
@@ -688,6 +696,7 @@ def findCar():
     # is called when the user clicked to rent the car
     """
     if request.method == 'POST':
+        # TODO hier kommt rent car redirect hin!! 
         startdate = request.form['startdate']
         print(startdate)
         enddate = request.form['enddate']
@@ -699,6 +708,62 @@ def findCar():
         #    cur.execute("INSERT INTO Autobesitzer VALUES((?), (?))", [current_user_id, car_id])
         #con.commit()
     return render_template("findCar.html", cars = cars)
+
+@app.route("/rent-car/<id>", methods=['GET', 'POST'])
+def rent_car(id):
+    print("Lets rent a car!")
+    print(id)
+    start = request.form['startdate']
+    startdate = datetime.date.fromisoformat(start)
+    print(startdate)
+    end = request.form['enddate']
+    enddate = datetime.date.fromisoformat(end)
+    print(enddate)
+
+    allRentedDates = []
+    with sqlite3.connect("database.sqlite") as con:
+        cur = con.cursor()
+        pricePerDay = cur.execute("SELECT PreisProTag FROM Autos WHERE AutoID = (?)", [(id)]).fetchone()[0] #change 30 to variable
+        amountDays = startdate - enddate + datetime.timedelta(days=1)
+        endPrice = amountDays * pricePerDay
+
+        date = startdate
+
+        available = cur.execute("SELECT * FROM User").fetchall()
+        print(available)
+        try:
+            while date <= enddate:
+                #available = cur.execute("SELECT Datum FROM Verfuegbar WHERE Auto=(?) and Datum=(?)", [(id), (date)]).fetchone()
+                available = cur.execute("SELECT * FROM Verfuegbar").fetchall()[0]   # TUT NICHT
+                print("all dates:")
+                print(available)
+                if available == None:
+                    print("NOT AVAILABLE" + str(date))
+                    raise Exception("Der angeforderte Zeitraum ist nicht verfügbar!")
+                else:
+                    print(available)
+                    available = available[0] 
+                    print(available[0])
+                    allRentedDates.append(date)                           
+                    date = date + datetime.timedelta(days=1)
+            try:
+                guthaben = cur.execute("SELECT Guthaben FROM User WHERE UserID=(?)", [(session["UserID"])]).fetchone()[0]
+                if endPrice > guthaben:
+                    raise Exception("Das Guthaben reicht nicht aus, um das Auto zu mieten!")
+                else:
+                    print("FIx")
+                    cur.execute("INSERT INTO Mietauftrag(Mieter, Vermieter, Auto, Gesamtpreis, Startdatum, Enddatum, Ueberweisungsdatum) VALUES(?, ?, ?, ?, ?, ?, ?)", ((session["UserID"]), (2), (session["matchedCars"][i][0]), (endPrice), (startDate), (endDate), (startDate)))
+                    cur.execute("UPDATE User SET Guthaben= Guthaben - (?) WHERE UserID=(?)", [(endPrice), (session["UserID"])])
+                    cur.execute("UPDATE User SET Guthaben= Guthaben + (?) WHERE UserID=(?)", [(endPrice), (lessor)])
+                    for date in allRentedDates:
+                        cur.execute("DELETE FROM Verfuegbar WHERE User=(?) AND Datum = (?)", (session["UserID"], date))
+            except:
+                print("Das Guthaben reicht nicht aus, um das Auto zu mieten!")
+        except:
+            print("Der angeforderte Zeitraum ist nicht verfügbar!")
+        finally:
+            con.commit()
+            return redirect(url_for("findCar"))
 
 if __name__ == "__main__":
     app.run()
