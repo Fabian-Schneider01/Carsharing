@@ -37,23 +37,18 @@ def createTabels():
         Hersteller TEXT, 
         Modell TEXT, 
         Fahrzeugtyp TEXT,
-        PreisProTag INT,
-        Startdatum DATE,
-        Enddatum DATE
+        PreisProTag INT
         )
     ''')
 
     cur.execute('''
         CREATE TABLE IF NOT EXISTS Mietauftrag(
         Mieter INT,
-        Vermieter INT,
         Auto INT,
         Gesamtpreis INT,
         Startdatum DATE,
         Enddatum DATE,
-        Ueberweisungsdatum DATE,
         FOREIGN KEY(Mieter) REFERENCES User(UserID),
-        FOREIGN KEY(Vermieter) REFERENCES User(UserID),
         FOREIGN KEY(Auto) REFERENCES Autos(AutoID)
         )
     ''')
@@ -67,7 +62,16 @@ def createTabels():
         )
     ''')
 
-    #cur.execute('''DROP TABLE Autos''')
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS Verfuegbar(
+        Auto INT,
+        Datum DATE,
+        FOREIGN KEY(Auto) REFERENCES Autos(AutoID)
+        )
+    ''')
+
+    #cur.execute('''DROP TABLE Mietauftrag''')
     #cur.execute('''DELETE FROM Autos WHERE AutoID=456''')
+    #cur.execute("UPDATE User SET Passwort='MeinHund' WHERE UserID=2")
     con.commit()
     cur.close()
