@@ -286,8 +286,6 @@ def findCar():
                 cur = con.cursor()
                 userID = session["UserID"]
                 cars = cur.execute("SELECT AutoID, Hersteller, Modell, Fahrzeugtyp, PreisProTag FROM Autos").fetchall()
-<<<<<<< HEAD
-=======
                 """
                 # rename cars in the above line to cardata
                 cardates = cur.execute("SELECT Datum FROM Verfuegbar WHERE Auto=(?)", [(id)]).fetchall()[0]
@@ -304,10 +302,12 @@ def findCar():
 
                 cars = (cardata[0], cardata[1], cardata[2], cardata[3], cardata[4], cardate)    # TODO check if new Structure is used everywhere, so cars[5] is date and cars[6] nonexistent
                 """
->>>>>>> c69c11eae95f4fc7ed811223ce7d63ebc6440b66
         if request.method == "POST":
             #change name to rentCar-i => i = AutoID 
             with sqlite3.connect("database.sqlite") as con:
+                #FILTER available = cur.execute("SELECT Datum FROM Verfuegbar WHERE Auto=(?)", [(id)]).fetchall()[0]
+                available_dates = [datetime.date.fromisoformat(i) for i in available]
+                #sorted_dates = sorted(available_dates)
                 cur = con.cursor()
                 filteredCars =[]
                 filterPlace = request.form["place"]
@@ -327,6 +327,8 @@ def findCar():
                                     if filterMaxPrice != "":
                                         filterPeriod = (datetime.strptime(request.form["enddate"], "%Y-%m-%d") - datetime.strptime(request.form["startdate"], "%Y-%m-%d")).days
                                         cars = cur.execute("SELECT UserID, AutoID FROM User LEFT JOIN Adresse ON Adresse.AdressID = User.Adresse LEFT JOIN Autobesitzer ON Autobesitzer.User = User.UserID LEFT JOIN Autos ON AutoID = Autobesitzer.Auto LEFT JOIN Verfuegbar ON Verfuegbar.Auto = Autobesitzer.Auto WHERE Autobesitzer.User = User.UserID AND Ort = (?) AND Fahrzeugtyp = (?) AND (?) * PreisProTag <= (?) AND UserID != (?)", [(filterPlace), (filterClass), (filterPeriod), (filterMaxPrice), (session["UserID"])]).fetchall()
+                                        #FILTERfor i in range(available):
+                                            
                                         if cars != None:
                                             for i in range(len(cars)):
                                                 dbStartDate = cur.execute("SELECT Startdatum FROM Verfuegbar WHERE Auto = (?)", [(cars[i][1])]).fetchall()
